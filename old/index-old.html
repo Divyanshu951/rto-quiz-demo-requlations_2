@@ -1,0 +1,1340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rto Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        max-width: 1300px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+      }
+
+      .main-container {
+        width: 100%;
+      }
+
+      .question-tab {
+        border: 2px solid gray;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 20px;
+        background-color: #1a1a1a;
+      }
+
+      .q-options {
+        border-right: 2px solid gray;
+        flex: 1 1 60%;
+        padding-right: 20px;
+      }
+
+      .img-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1 1 40%;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+      }
+
+      h1 {
+        font-family: "Manrope", sans-serif;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+      }
+
+      .options {
+        list-style-type: none;
+      }
+
+      /* Styling for the clickable options */
+      .option-item {
+        background-color: #333;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        border: 1px solid transparent;
+      }
+
+      .option-item:hover {
+        background-color: #444;
+      }
+
+      /* Styles applied via JavaScript when clicked */
+      .option-item.correct {
+        background-color: #2e7d32; /* Green */
+        color: white;
+        border-color: #4caf50;
+      }
+
+      .option-item.wrong {
+        background-color: #c62828; /* Red */
+        color: white;
+        border-color: #ef5350;
+      }
+
+      /* Disable clicking after an answer is chosen */
+      .options.answered .option-item {
+        pointer-events: none;
+      }
+
+      /* Keep unselected options slightly faded after answering */
+      .options.answered .option-item:not(.correct):not(.wrong) {
+        opacity: 0.5;
+      }
+
+      @media (max-width: 768px) {
+        .question-tab {
+          flex-direction: column;
+        }
+        .q-options {
+          padding-right: 0;
+          padding-bottom: 20px;
+          border-right: none;
+          border-bottom: 2px solid gray;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container"></div>
+
+    <script>
+      const questionData = [
+        {
+          id: 1,
+          question: "A RED TRAFFIC LIGHT MEANS",
+          imageID: "img111",
+          options: {
+            a: "MUST STOP BEHIND WHITE STOP LINE",
+            b: "YOU MAY GO STRAIGHT",
+            c: "YOU MAY TURN LEFT IF IT IS SAFE TO DO SO",
+            d: "YOU MUST SLOW DOWN AND PREPARE TO STOP IF TRAFFIC HAS STARTED TO CROSS",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 2,
+          question: "A FLASHING YELLOW LIGHT INDICATES",
+          imageID: "img129",
+          options: {
+            a: "SLOW DOWN AND PROCEED WITH CAUTION",
+            b: "IF THERE IS NO OTHER TRAFFIC",
+            c: "STOP, OBSERVE AND PROCEED WITH CAUTION",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 3,
+          question: "A FLASHING RED LIGHT INDICATES",
+          imageID: "img130",
+          options: {
+            a: "STOP",
+            b: "NO ENTRY",
+            c: "STOP",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 4,
+          question: "THE SIGNS MARKED IN THIS CIRCLE ARE..",
+          imageID: "img131",
+          options: {
+            a: "MANDATORY",
+            b: "NO ENTRY",
+            c: "INFORMATORY",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 5,
+          question: "THE SIGNS MARKED IN THIS TRIANGLE ARE..",
+          imageID: "img112",
+          options: {
+            a: "MANDATORY",
+            b: "CAUTIONARY",
+            c: "INFORMATORY",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 6,
+          question: "THE SIGNS MARKED IN THIS RECTANGLE ARE...",
+          imageID: "img113",
+          options: {
+            a: "MANDATORY",
+            b: "CAUTIONARY",
+            c: "INFORMATORY",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 7,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img1",
+          options: {
+            a: "STOP",
+            b: "ONE WAY SIGN",
+            c: "NO PARKING",
+            d: "NO STOPPING",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 8,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img3",
+          options: {
+            a: "LEFT HAND CURVE",
+            b: "INFORMATORY",
+            c: "WARNING SIGN",
+            d: "GIVE WAY",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 9,
+          question:
+            "YOU MISSED YOUR WAY AND FIND YOU ARE ON A ONE-WAY STREET. YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "REVERSE OUT OF THE ROAD",
+            b: "BLOW YOUR HORN AND DRIVE",
+            c: "CONTINUE TO THE END OF THE ROAD",
+            d: "REVERSE INTO A DRIVEWAY",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 10,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img86",
+          options: {
+            a: "ONE WAY",
+            b: "BOTH WAYS PROHIBITED",
+            c: "RIGHT TURN PROHIBITED",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 11,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img4",
+          options: {
+            a: "NO ENTRY",
+            b: "ONE WAY SIGN",
+            c: "COMPULSORY STRAIGHT AHEAD",
+            d: "LEFT TURN PROHIBITED",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 12,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img74",
+          options: {
+            a: "VEHICLE PROHIBITED IN BOTH DIRECTION",
+            b: "LEFT TURN PROHIBITED",
+            c: "OVERTAKING PROHIBITED",
+            d: "RIGHT TURN PROHIBITED",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 13,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img72",
+          options: {
+            a: "CYCLE PROHIBITED",
+            b: "TRUCK PROHIBITED",
+            c: "RIGHT TURN PROHIBITED",
+            d: "LEFT TURN PROHIBITED",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 14,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img8",
+          options: {
+            a: "LEFT TURN PROHIBITED",
+            b: "RIGHT TURN PROHIBITED",
+            c: "U-TURN PROHIBITED",
+            d: "OVERTAKING PROHIBITED",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 15,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img21",
+          options: {
+            a: "TRUCK PROHIBITED",
+            b: "ALL MOTOR VEHICLES PROHIBITED",
+            c: "BULLOCK CART PROHIBITED",
+            d: "CYCLE PROHIBITED",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 16,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img14",
+          options: {
+            a: "OVERTAKING PROHIBITED",
+            b: "LEFT TURN PROHIBITED",
+            c: "RIGHT TURN PROHIBITED",
+            d: "VEHICLE PROHIBITED IN BOTH DIRECTION",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 17,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img9",
+          options: {
+            a: "NO SMOKING",
+            b: "RIGHT TURN PROHIBITED",
+            c: "CYCLE PROHIBITED",
+            d: "HORN PROHIBITED",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 18,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img24",
+          options: {
+            a: "PEDESTRIANS PROHIBITED",
+            b: "SCHOOL ZONE",
+            c: "PLAY ZONE",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 19,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img95",
+          options: {
+            a: "CYCLE TRACK",
+            b: "CYCLES PROHIBITED",
+            c: "CYCLE PARKING",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 20,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img22",
+          options: {
+            a: "ALL VEHICLES PROHIBITED",
+            b: "TRUCKS PARKING",
+            c: "GHAT ROAD",
+            d: "TRUCKS PROHIBITED",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 21,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img69",
+          options: {
+            a: "NO STOPPING",
+            b: "RESTRICTION ENDS SIGN",
+            c: "NO PARKING",
+            d: "SPEED LIMIT",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 22,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img19",
+          options: {
+            a: "NO PARKING",
+            b: "NO STOPPING OR STANDING",
+            c: "LENGTH LIMIT",
+            d: "SPEED LIMIT",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 23,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img11",
+          options: {
+            a: "STOP",
+            b: "RESTRICTION ENDS SIGN",
+            c: "NO ENTRY",
+            d: "NO PARKING",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 24,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img96",
+          options: {
+            a: "LENGTH LIMIT",
+            b: "SPEED LIMIT",
+            c: "LOAD LIMIT",
+            d: "HEIGHT LIMIT",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 25,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img26",
+          options: {
+            a: "LOAD LIMIT",
+            b: "SPEED LIMIT",
+            c: "WIDTH LIMIT",
+            d: "HEIGHT LIMIT",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 26,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img99",
+          options: {
+            a: "AXLE LOAD LIMIT",
+            b: "HEIGHT LIMIT",
+            c: "WIDTH LIMIT",
+            d: "LOAD LIMIT",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 27,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img88",
+          options: {
+            a: "LENGTH LIMIT",
+            b: "SPEED LIMIT",
+            c: "LOAD LIMIT",
+            d: "HEIGHT LIMIT",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 28,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img87",
+          options: {
+            a: "HEIGHT LIMIT",
+            b: "SPEED LIMIT",
+            c: "WIDTH LIMIT",
+            d: "LENGTH LIMIT",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 29,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img35",
+          options: {
+            a: "AXLE LOAD LIMIT",
+            b: "WIDTH LIMIT",
+            c: "LOAD LIMIT",
+            d: "HEIGHT LIMIT",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 30,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img2",
+          options: {
+            a: "ONE WAY",
+            b: "LEFT TURN PROHIBITED",
+            c: "COMPULSORY KEEP LEFT",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 31,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img20",
+          options: {
+            a: "COMPULSORY KEEP LEFT",
+            b: "COMPULSORY AHEAD ONLY",
+            c: "COMPULSORY TURN LEFT",
+            d: "COMPULSORY RIGHT",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 32,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img132",
+          options: {
+            a: "COMPULSORY AHEAD ONLY",
+            b: "COMPULSORY TURN LEFT AHEAD",
+            c: "COMPULSORY TURN RIGHT AHEAD",
+            d: "COMPULSORY AHEAD OR TURN LEFT",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 33,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img133",
+          options: {
+            a: "RIGHT HAND CURVE",
+            b: "COMPULSORY RIGHT TURN",
+            c: "COMPULSORY TURN LEFT AHEAD",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 34,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img70",
+          options: {
+            a: "COMPULSORY TURN LEFT",
+            b: "COMPULSORY RIGHT",
+            c: "COMPULSORY AHEAD OR TURN LEFT",
+            d: "COMPULSORY AHEAD OR TURN RIGHT",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 35,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img85",
+          options: {
+            a: "RIGHT HAND CURVE",
+            b: "COMPULSORY TURN RIGHT",
+            c: "COMPULSORY LEFT TURN",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 36,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img16",
+          options: {
+            a: "COMPULSORY AHEAD OR TURN LEFT",
+            b: "COMPULSORY AHEAD OR TURN RIGHT",
+            c: "COMPULSORY TURN RIGHT",
+            d: "COMPULSORY TURN LEFT",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 37,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img27",
+          options: {
+            a: "COMPULSORY TURN LEFT",
+            b: "COMPULSORY TURN RIGHT",
+            c: "COMPULSORY AHEAD OR TURN LEFT",
+            d: "COMPULSORY AHEAD OR TURN RIGHT",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 38,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img17",
+          options: {
+            a: "COMPULSORY SOUND HORN",
+            b: "HORN PROHIBITED",
+            c: "NO SMOKING",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 39,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img98",
+          options: {
+            a: "COMPULSORY CYCLE TRACK",
+            b: "SCHOOL AREA",
+            c: "CYCLE PROHIBITED",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 40,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img43",
+          options: {
+            a: "COMPULSORY CYCLE TRACK",
+            b: "CYCLE PROHIBITED",
+            c: "CYCLE TRACK",
+            d: "CYCLE CROSSING",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 41,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img5",
+          options: {
+            a: "RIGHT HAND CURVE",
+            b: "LEFT HAND CURVE",
+            c: "HAIR PIN BEND RIGHT",
+            d: "HAIR PIN BEND LEFT",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 42,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img29",
+          options: {
+            a: "RIGHT HAND CURVE",
+            b: "LEFT HAND CURVE",
+            c: "RIGHT REVERSE BEND",
+            d: "LEFT REVERSE BEND",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 43,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img30",
+          options: {
+            a: "RIGHT HAIR PIN BEND",
+            b: "HAIR PIN BEND LEFT",
+            c: "RIGHT REVERSE BEND",
+            d: "LEFT REVERSE BEND",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 44,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img31",
+          options: {
+            a: "LEFT HAIR PIN BEND",
+            b: "RIGHT HAND CURVE",
+            c: "HAIR PIN BEND RIGHT",
+            d: "LEFT HAND CURVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 45,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img32",
+          options: {
+            a: "RIGHT HAND CURVE",
+            b: "HAIR PIN BEND RIGHT",
+            c: "RIGHT REVERSE BEND",
+            d: "HAIR PIN BEND LEFT",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 46,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img49",
+          options: {
+            a: "STEEP DESCENT",
+            b: "STEEP ASCENT",
+            c: "SLIPPERY ROAD",
+            d: "HUMP OR ROUGH ROAD",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 47,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img50",
+          options: {
+            a: "STEEP ASCENT",
+            b: "STEEP DESCENT",
+            c: "NARROW ROAD AHEAD",
+            d: "NARROW BRIDGE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 48,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img12",
+          options: {
+            a: "NARROW ROAD AHEAD",
+            b: "ROAD WIDENS AHEAD",
+            c: "NARROW BRIDGE",
+            d: "SLIPPERY ROAD",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 49,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img51",
+          options: {
+            a: "NARROW ROAD AHEAD",
+            b: "ROAD WIDENS AHEAD",
+            c: "NARROW BRIDGE",
+            d: "SLIPPERY ROAD",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 50,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img10",
+          options: {
+            a: "NARROW ROAD AHEAD",
+            b: "ROAD WIDENS AHEAD",
+            c: "NARROW BRIDGE",
+            d: "SLIPPERY ROAD",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 51,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img41",
+          options: {
+            a: "SLIPPERY ROAD",
+            b: "STAGGERED INTERSECTION",
+            c: "LOOSE GRAVEL",
+            d: "HUMP OR ROUGH ROAD",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 52,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img42",
+          options: {
+            a: "NARROW BRIDGE",
+            b: "SLIPPERY ROAD",
+            c: "LOOSE GRAVEL",
+            d: "STEEP DESCENT",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 53,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img69",
+          options: {
+            a: "SCHOOL AHEAD",
+            b: "MEN AT WORK",
+            c: "CYCLE CROSSING",
+            d: "PEDESTRIAN CROSSING",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 54,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img45",
+          options: {
+            a: "CYCLE CROSSING",
+            b: "SCHOOL AHEAD",
+            c: "LOOSE GRAVEL",
+            d: "PEDESTRIAN CROSSING",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 55,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img46",
+          options: {
+            a: "BARRIER AHEAD",
+            b: "DANGEROUS DIP",
+            c: "MEN AT WORK",
+            d: "MAJOR ROAD AHEAD",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 56,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img47",
+          options: {
+            a: "FALLING ROCKS",
+            b: "STEEP ASCENT",
+            c: "HUMP OR ROUGH ROAD",
+            d: "LOOSE GRAVEL",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 57,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img15",
+          options: {
+            a: "BARRIER AHEAD",
+            b: "ROUND ABOUT",
+            c: "CROSS ROAD",
+            d: "RAILWAY CROSSING AHEAD",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 58,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img52",
+          options: {
+            a: "GAP IN MEDIAN",
+            b: "SIDE ROAD RIGHT",
+            c: "SIDE ROAD LEFT",
+            d: "STAGGERED INTERSECTION",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 59,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img37",
+          options: {
+            a: "STAGGERED INTERSECTION",
+            b: "ROUND ABOUT",
+            c: "CROSS ROAD",
+            d: "SIDE ROAD LEFT",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 60,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img123",
+          options: {
+            a: "DANGEROUS DIP",
+            b: "STAGGERED INTERSECTION",
+            c: "Y-INTERSECTION",
+            d: "MAJOR ROAD AHEAD",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 61,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img38",
+          options: {
+            a: "DANGEROUS DIP",
+            b: "MAJOR ROAD AHEAD",
+            c: "Y-INTERSECTION",
+            d: "STAGGERED INTERSECTION",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 62,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img53",
+          options: {
+            a: "BARRIER AHEAD",
+            b: "HUMP OR ROUGH ROAD",
+            c: "MAJOR ROAD AHEAD",
+            d: "STAGGERED INTERSECTION",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 63,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img54",
+          options: {
+            a: "RAILWAY CROSSING",
+            b: "BARRIER AHEAD",
+            c: "MEN AT WORK",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 64,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img134",
+          options: {
+            a: "RIGHT HAND CURVE",
+            b: "LEFT HAND CURVE",
+            c: "STAGGERED INTERSECTION",
+            d: "ZIG ZAG RIGHT",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 65,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img34",
+          options: {
+            a: "ROUND ABOUT",
+            b: "CROSS ROADS",
+            c: "ROAD OPEN",
+            d: "Y-INTERSECTION",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 66,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img39",
+          options: {
+            a: "ROUND ABOUT",
+            b: "CROSS ROADS",
+            c: "Y-INTERSECTION",
+            d: "ROAD OPEN",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 67,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img75",
+          options: {
+            a: "SIDE ROAD LEFT",
+            b: "ONE WAY SIGN",
+            c: "T-ROAD",
+            d: "WIDE ROAD",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 68,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img56",
+          options: {
+            a: "ZIG ZAG ROAD",
+            b: "FERRY",
+            c: "HUMP OR ROUGH ROAD",
+            d: "STRAIGHT ROAD",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 69,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img44",
+          options: {
+            a: "CATTLE",
+            b: "BULLOCK CART",
+            c: "TONGA",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 70,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img135",
+          options: {
+            a: "GUARDED LEVEL CROSSING (50-100 METERS)",
+            b: "UNGUARDED LEVEL CROSSING (50-100 METERS)",
+            c: "UNGUARDED LEVEL CROSSING (200 METERS)",
+            d: "GUARDED LEVEL CROSSING (200 METERS)",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 71,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img84",
+          options: {
+            a: "GUARDED LEVEL CROSSING (50-100 METERS)",
+            b: "UNGUARDED LEVEL CROSSING (50-100 METERS)",
+            c: "UNGUARDED LEVEL CROSSING (200 METERS)",
+            d: "GUARDED LEVEL CROSSING (200 METERS)",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 72,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img102",
+          options: {
+            a: "GUARDED LEVEL CROSSING (50-100 METERS)",
+            b: "UNGUARDED LEVEL CROSSING (50-100 METERS)",
+            c: "UNGUARDED LEVEL CROSSING (200 METERS)",
+            d: "GUARDED LEVEL CROSSING (200 METERS)",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 73,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img78",
+          options: {
+            a: "GUARDED LEVEL CROSSING (50-100 METERS)",
+            b: "UNGUARDED LEVEL CROSSING (50-100 METERS)",
+            c: "UNGUARDED LEVEL CROSSING (200 METERS)",
+            d: "GUARDED LEVEL CROSSING (200 METERS)",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 74,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img61",
+          options: {
+            a: "ATM",
+            b: "HOTEL",
+            c: "PETROL PUMP",
+            d: "AIR FILLING",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 75,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img108",
+          options: {
+            a: "EATING PLACE",
+            b: "LIGHT REFRESHMENT",
+            c: "RESTING PLACE",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 76,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img79",
+          options: {
+            a: "HOSPITAL",
+            b: "RESTING PLACE",
+            c: "LIGHT REFRESHMENT",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 77,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img71",
+          options: {
+            a: "RESTING PLACE",
+            b: "HOSPITAL",
+            c: "FIRST AID POST",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 78,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img83",
+          options: {
+            a: "HOSPITAL",
+            b: "CROSS ROADS",
+            c: "FIRST AID POST",
+            d: "NO PARKING",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 79,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img80",
+          options: {
+            a: "FIRST AID POST",
+            b: "NO THROUGH SIDE ROAD",
+            c: "MAJOR ROAD AHEAD",
+            d: "NO THROUGH ROAD",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 80,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img55",
+          options: {
+            a: "H-INTERSECTION",
+            b: "NO THROUGH ROAD",
+            c: "PARALLEL ROAD",
+            d: "NO THROUGH SIDE ROAD",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 81,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img7",
+          options: {
+            a: "POST OFFICE",
+            b: "NO PARKING",
+            c: "PARK THIS SIDE",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 82,
+          question: "WHAT DOES THIS SIGN MEAN?",
+          imageID: "img58",
+          options: {
+            a: "POST OFFICE",
+            b: "NO PARKING",
+            c: "PARK THIS SIDE",
+            d: "PARKING FOR SCOOTERS AND MOTOR CYCLES",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 83,
+          question:
+            "WHAT DOES THIS SIGNAL FROM A POLICE OFFICER MEAN TO ONCOMING TRAFFIC?",
+          imageID: "img93",
+          options: {
+            a: "GO AHEAD",
+            b: "STOP",
+            c: "TURN LEFT",
+            d: "TURN RIGHT",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 84,
+          question:
+            "YOU APPROACH A JUNCTION. THE TRAFFIC LIGHTS ARE NOT WORKING. A POLICE OFFICER GIVES THIS SIGNAL YOU SHOULD",
+          imageID: "img93",
+          options: {
+            a: "TURN LEFT ONLY",
+            b: "TURN RIGHT ONLY",
+            c: "STOP LEVEL WITH THE OFFICER'S ARM",
+            d: "STOP BEFORE THE STOP LINE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 85,
+          question:
+            "WHILE DRIVING TO MAKE A RIGHT TURN, THE PROPER HAND SIGNAL IS",
+          imageID: "img63",
+          options: {
+            a: "EXTEND RIGHT PALM IN A HORIZONTAL POSITION OUTSIDE TO THE RIGHT OF VEHICLE WITH PALM OF THE HAND TURNED TO THE FRONT",
+            b: "EXTEND RIGHT ARM AND ROTATE IN ANTI-CLOCKWISE DIRECTION",
+            c: "WITH PALM DOWNWARD AND MOVE UP AND DOWN SEVERAL TIMES",
+            d: "SOUND YOUR HORN REPEATEDLY",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 86,
+          question:
+            "IF THE DRIVER IS GIVING THIS HAND SIGNAL, WHAT DOES HE MEAN?",
+          imageID: "img64",
+          options: {
+            a: "HE INTENDS TO MOVE TO THE LEFT OR TO TURN LEFT",
+            b: "HE INTENDS TO MOVE OUT TO THE RIGHT OR TURN RIGHT",
+            c: "HE INTENDS TO STOP",
+            d: "HE INTENDS TO SLOW DOWN",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 87,
+          question:
+            "IF THE DRIVER IS GIVING THIS HAND SIGNAL, WHAT DOES HE MEAN?",
+          imageID: "img63",
+          options: {
+            a: "HE INTENDS TO MOVE TO THE LEFT OR TO TURN LEFT",
+            b: "HE INTENDS TO MOVE OUT TO THE RIGHT OR TURN RIGHT",
+            c: "HE INTENDS TO STOP",
+            d: "HE INTENDS TO SLOW DOWN",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 88,
+          question:
+            "IF THE DRIVER IS GIVING THIS HAND SIGNAL, WHAT DOES HE MEAN?",
+          imageID: "img66",
+          options: {
+            a: "HE INTENDS TO MOVE TO THE LEFT OR TO TURN LEFT",
+            b: "HE INTENDS TO MOVE OUT TO THE RIGHT OR TURN RIGHT",
+            c: "HE INTENDS TO STOP",
+            d: "HE INTENDS TO SLOW DOWN",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 89,
+          question:
+            "IF THE DRIVER IS GIVING THIS HAND SIGNAL, WHAT DOES HE MEAN?",
+          imageID: "img65",
+          options: {
+            a: "HE INTENDS TO MOVE TO THE LEFT OR TO TURN LEFT",
+            b: "HE INTENDS TO MOVE OUT TO THE RIGHT OR TURN RIGHT",
+            c: "HE INTENDS TO STOP",
+            d: "HE INTENDS TO SLOW DOWN",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 90,
+          question:
+            "IF THE DRIVER IS GIVING THIS HAND SIGNAL, WHAT DOES HE MEAN?",
+          imageID: "img136",
+          options: {
+            a: "HE INTENDS TO MOVE TO THE LEFT OR TO TURN LEFT",
+            b: "HE INTENDS TO MOVE OUT TO THE RIGHT OR TURN RIGHT",
+            c: "HE INTENDS TO STOP",
+            d: "HE INTENDS TO GIVE WAY, TO BE OVERTAKEN",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 91,
+          question: "BROKEN WHITE LINE INDICATES..",
+          imageID: "img126",
+          options: {
+            a: "CAN CHANGE LANE WITH CAUTION",
+            b: "OVERTAKING PROHIBITED",
+            c: "CHANGING OF LANE PROHIBITED",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 92,
+          question: "CONTINUES WHITE OR YELLOW LINE INDICATES",
+          imageID: "img120",
+          options: {
+            a: "CAN CHANGE LANE WITH CAUTION",
+            b: "LEFT SIDE VEHICLES CAN CHANGE LANE WITH CAUTION",
+            c: "CHANGING OF LANE PROHIBITED",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 93,
+          question: "LEFT SIDE BROKEN LINE AND ADJACENT SOLID LINE MEANS",
+          imageID: "img128",
+          options: {
+            a: "OVERTAKING IS PERMITTED WITH CARE OF TRAFFIC ADJACENT TO THE SOLID LINE",
+            b: "OVERTAKING IS PERMITTED WITH CARE OF TRAFFIC ADJACENT TO THE BROKEN LINE, BUT PROHIBITED FOR TRAFFIC ADJACENT TO SOLID LINE",
+            c: "CHANGING OF LANE PROHIBITED",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 94,
+          question: "TWO SOLID YELLOW LINES MEANS",
+          imageID: "img119",
+          options: {
+            a: "YOU MUST NOT CROSS THESE LINES TO OVERTAKE OR MAKE A U TURN",
+            b: "ONE WAY ROAD",
+            c: "CAN CHANGE LANE WITH CAUTION",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+      ];
+
+      const mainContainer = document.querySelector(".main-container");
+
+      // 1. Generate the HTML for the questions
+      questionData.forEach((item) => {
+        const { id, question, imageID, options, answerOption } = item;
+
+        // Notice we added data-id and data-choice to the li tags so JS knows what was clicked
+        const html = `
+        <div class="question-tab">
+          <div class="q-options">
+            <h1><span>${id}. </span>${question}</h1>
+            <p style="margin-bottom: 15px; color: #aaa;">Select an option below:</p>
+            <ul class="options" data-question-id="${id}">
+              <li class="option-item" data-choice="a"><b>a.</b> ${options.a}</li>
+              <li class="option-item" data-choice="b"><b>b.</b> ${options.b}</li>
+              <li class="option-item" data-choice="c"><b>c.</b> ${options.c}</li>
+              <li class="option-item" data-choice="d"><b>d.</b> ${options.d}</li>
+            </ul>
+          </div>
+          <div class="img-container">
+            <img src="data/img/${imageID}.png" alt="Question Image" onerror="this.style.display='none'" />
+          </div>
+        </div>`;
+
+        mainContainer.insertAdjacentHTML("beforeend", html);
+      });
+
+      // 2. Add Event Listener to handle the clicks
+      mainContainer.addEventListener("click", function (event) {
+        // Check if what was clicked was an option item
+        const clickedOption = event.target.closest(".option-item");
+
+        if (!clickedOption) return; // If clicked somewhere else, do nothing
+
+        const optionsList = clickedOption.closest(".options");
+
+        // Prevent clicking again if already answered
+        if (optionsList.classList.contains("answered")) return;
+
+        const questionId = parseInt(
+          optionsList.getAttribute("data-question-id"),
+        );
+        const userChoice = clickedOption.getAttribute("data-choice");
+
+        // Find the correct answer from our data array
+        const question = questionData.find((q) => q.id === questionId);
+        const correctAnswer = question.answerOption;
+
+        // Lock the question so it can't be clicked again
+        optionsList.classList.add("answered");
+
+        // Check if the user is correct
+        if (userChoice === correctAnswer) {
+          // User got it right
+          clickedOption.classList.add("correct");
+        } else {
+          // User got it wrong
+          clickedOption.classList.add("wrong");
+
+          // Still show them which one was actually correct!
+          const correctOptionElement = optionsList.querySelector(
+            `[data-choice="${correctAnswer}"]`,
+          );
+          if (correctOptionElement) {
+            correctOptionElement.classList.add("correct");
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

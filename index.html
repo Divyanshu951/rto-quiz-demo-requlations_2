@@ -1,0 +1,2289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rto Quiz- Traffic signs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        max-width: 1300px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        /* Added top padding so the first question isn't hidden by the floating score */
+        padding-top: 80px;
+      }
+
+      .main-container {
+        width: 100%;
+      }
+
+      .question-tab {
+        border: 2px solid gray;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 20px;
+        background-color: #1a1a1a;
+      }
+
+      .q-options {
+        border-right: 2px solid gray;
+        flex: 1 1 60%;
+        padding-right: 20px;
+      }
+
+      .img-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1 1 40%;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+      }
+
+      h1 {
+        font-family: "Manrope", sans-serif;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+      }
+
+      .options {
+        list-style-type: none;
+      }
+
+      /* Styling for the clickable options */
+      .option-item {
+        background-color: #333;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        border: 1px solid transparent;
+      }
+
+      .option-item:hover {
+        background-color: #444;
+      }
+
+      /* Styles applied via JavaScript when clicked */
+      .option-item.correct {
+        background-color: #2e7d32; /* Green */
+        color: white;
+        border-color: #4caf50;
+      }
+
+      .option-item.wrong {
+        background-color: #c62828; /* Red */
+        color: white;
+        border-color: #ef5350;
+      }
+
+      /* Disable clicking after an answer is chosen */
+      .options.answered .option-item {
+        pointer-events: none;
+      }
+
+      /* Keep unselected options slightly faded after answering */
+      .options.answered .option-item:not(.correct):not(.wrong) {
+        opacity: 0.5;
+      }
+
+      /* --- NEW SCORE CONTAINER DESIGN --- */
+      .score-container {
+        position: fixed;
+        top: 20px;
+        right: 20px; /* Moved to the right for a more standard look */
+        padding: 12px 24px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        border-radius: 30px;
+        font-family: "Manrope", sans-serif;
+        font-weight: 700;
+        font-size: 1.25rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 1000;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+      }
+
+      .score-container::before {
+        content: "Score:";
+        font-size: 1rem;
+        font-weight: 500;
+        opacity: 0.8;
+        margin-right: 5px;
+      }
+
+      .score-numbers {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 4px 12px;
+        border-radius: 20px;
+      }
+
+      @media (max-width: 768px) {
+        .question-tab {
+          flex-direction: column;
+        }
+        .q-options {
+          padding-right: 0;
+          padding-bottom: 20px;
+          border-right: none;
+          border-bottom: 2px solid gray;
+        }
+        .score-container {
+          top: 10px;
+          right: 10px;
+          font-size: 1rem;
+          padding: 8px 16px;
+        }
+        body {
+          padding-top: 70px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="score-container">
+      <div class="score-numbers">
+        <span class="scored">0</span> / <span class="total">0</span>
+      </div>
+    </div>
+    <div class="main-container"></div>
+
+    <script>
+      const questionData = [
+        {
+          id: 1,
+          question:
+            "YOU WANT TO TURN RIGHT AT A JUNCTION. BUT YOU THINK THAT YOUR INDICATORS CAN NOT BE SEEN CLEARLY. WHAT SHOULD YOU DO? ",
+          imageID: null,
+          options: {
+            a: "GET OUT AND CHECK IF YOUR INDICATORS CAN BE SEEN ",
+            b: "STAY IN THE LEFT HAND LANE ",
+            c: "KEEP WELL OVER TO THE RIGHT ",
+            d: "GIVE ARM SIGNAL AND INDICATOR SIGNAL ",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 2,
+          question:
+            "YOU HAVE TO MAKE A JOURNEY IN FOGGY CONDITIONS. YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "FOLLOW CLOSELY OTHER VEHICLE'S TAIL LIGHTS ",
+            b: "NEVER USE DEMISTERS AND WINDSCREEN WIPERS ",
+            c: "LEAVE PLENTY OF TIME FOR YOUR JOURNEY ",
+            d: "KEEP SAFE DISTANCE OF TWO SECONDS ",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 3,
+          question:
+            "YOUR ARE DRIVING A VEHICLE. YOU NOTICE ANIMALS IN FRONT. WHAT SHOULD YOU DO FIRST? ",
+          imageID: null,
+          options: {
+            a: "PULL OUT TO THE MIDDLE OF THE ROAD ",
+            b: "BE PREPARED TO SLOW DOWN ",
+            c: "ACCELERATE AROUND THEM ",
+            d: "SIGNAL RIGHT ",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 4,
+          question:
+            "YOU ARE DRIVING PAST A LANE OF PARKED CARS. YOU NOTICE BALL BOUNCING OUT INTO THE ROAD AHEAD. WHAT SHOULD YOU DO? ",
+          imageID: null,
+          options: {
+            a: "CONTINUE DRIVING AT THE SAME SPEED AND SOUND YOUR HORN ",
+            b: "CONTINUE DRIVING AT THE SAME SPEED AND FLASH YOUR HEADLIGHTS ",
+            c: "SLOW DOWN AND BE PREPARED TO STOP FOR CHILDREN ",
+            d: "STOP AND WAVE THE CHILDREN ACROSS TO FETCH THEIR BALL. ",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 5,
+          question:
+            "WHAT IS THE MAIN HAZARD YOU SHOULD BE AWARE OF WHEN FOLLOWING A CYCLIST? ",
+          imageID: null,
+          options: {
+            a: "THE CYCLIST MAY MOVE INTO THE LEFT AND DISMOUNT ",
+            b: "THE CYCLIST MAY TURN EITHER WAY INTO THE ROAD ",
+            c: "THE CONTENTS OF THE CYCLIST'S CARRIER MAY FALL ONTO THE ROAD ",
+            d: "THE CYCLIST MAY WISH TO TURN RIGHT AT THE END OF THE ROAD ",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 6,
+          question: "BE EXTRA CAUTIOUS WHILE OVERTAKING ",
+          imageID: null,
+          options: {
+            a: "'L' MARK VEHICLES. ",
+            b: "SLOW SPEED VEHICLES. ",
+            c: "OLD VEHICLES. ",
+            d: "LIGHT VEHICLES. ",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 7,
+          question:
+            "BE CAREFUL WHILE OVERTAKING 'L' MARK (LEARNER DRIVER) VEHICLE BECAUSE ",
+          imageID: null,
+          options: {
+            a: "THEIR INTENTION IS ALWAYS TO DRIVE IN RIGHT HAND LANE. ",
+            b: "THIS WILL REDUCE THEIR CONFIDENCE. ",
+            c: "THEY MAY GET NERVOUS AND IT MAY LEAD TO AN ACCIDENT. ",
+            d: "GENERALLY THEY ARE NOT MEDICALLY FIT. ",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 8,
+          question:
+            "YOU ARE FOLLOWING A TWO WHEELER ON A POOR ROAD SURFACE. YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "MAKE SURE YOU STAY WELL BACK ",
+            b: "LOOK OUT AS THEY MAY WOBBLE ",
+            c: "BE AWARE THEY MAY SUDDENLY TURN EITHERWAY ",
+            d: "ALL OF THE ABOVE ",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 9,
+          question: "YOU SHOULD NOT OVERTAKE WHEN? ",
+          imageID: null,
+          options: {
+            a: "INTENDING TO TURN LEFT SHORTLY AFTERWARDS ",
+            b: "APPROACHING A JUNCTION ",
+            c: "THE VIEW AHEAD IS BLOCKED ",
+            d: "ALL OF THE ABOVE ",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 10,
+          question: "YOU SHOULD NEVER ATTEMPT TO OVERTAKE A CYCLISTI ",
+          imageID: null,
+          options: {
+            a: "WHEN APPROACHING A ROUNDABOUT ",
+            b: "ON A NARROW ROAD ",
+            c: "JUST BEFORE YOU TURN LEFT ",
+            d: "ON A RIGHT HAND BEND ",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 11,
+          question:
+            "WHEN YOU APPROACH A BUS SIGNALLING TO MOVE OFF FROM A BUS STOP, YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "GET PAST BEFORE IT MOVES ",
+            b: "ALLOW IT TO PULL AWAY, IF IT IS SAFE TO DO SO ",
+            c: "FLASH YOUR HEADLIGHTS AS YOU APPROACH ",
+            d: "SIGNAL LEFT AND WAVE THE BUS TO MOVE ON ",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 12,
+          question:
+            "YOU HAVE JUST BEEN OVERTAKEN BY A MOTORCYCLIST WHO IS CUTTING IN SHARPLY, YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "SOUND THE HORN ",
+            b: "BRAKE FIRMLY ",
+            c: "KEEP A SAFE GAP ",
+            d: "FLASH YOUR LIGHTS ",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 13,
+          question:
+            "YOU ARE DRIVING A TWO WHEELER ON THE MOTORWAY IN WINDY CONDITIONS. WHEN PASSING HIGH-SIDED VEHICLES YOU SHOULD ",
+          imageID: "img13",
+          options: {
+            a: "INCREASE YOUR SPEED. ",
+            b: "BEAWARE OF SUDDEN BLAST OF WIND.. ",
+            c: "DRIVE ALONGSIDE VERY CLOSELY. ",
+            d: "EXPECT NORMAL CONDITIONS. ",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 14,
+          question:
+            "YOU ARE DRIVING UPTO ΑΝ INTERSECTION WHERE THERE IS NO SIGNAL. PEOPLE ARE CROSSING IN FRONT OF YOUR CAR. YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "CONTINUE DRIVING INTO THE INTERSECTION WITHOUT REDUCING SPEED. ",
+            b: "SLOW DOWN AND BE CAREFUL ",
+            c: "STOP AND ALLOW PEDESTRIANS TO CROSS ",
+            d: "SOUND YOUR HORN REPEATEDLY ",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 15,
+          question:
+            'YOU WISH TO TAKE A "U" TURN. IF THERE IS A POLICEMAN AT THE INTERSECTION CONTROLLED BY A TRAFFIC LIGHT, YOU SHOULD ',
+          imageID: null,
+          options: {
+            a: "DRIVE TO ANOTHER INTERSECTION THAT HAS NO TRAFFIC LIGHT ",
+            b: 'WAIT UNTIL THE LIGHT TURNS GREEN BEFORE MAKING THE "U" TURN ',
+            c: 'MAKE THE "U" TURN IF THERE IS A POLICEMAN AT THE INTERSECTION. ',
+            d: "AVOID MAKING A 'U' TURN ",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 16,
+          question:
+            "YOU ARE DRIVING ON A TWO-LANE STREET. THE VEHICLE IN FRONT OF YOU IS MOVING VERY SLOWLY, AND THE ROAD AHEAD IS CLEAR FOR OVERTAKING, YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "PASS THE VEHICLE FROM LEFT HAND SIDE ",
+            b: "PASS THE VEHICLE FROM RIGHT HAND SIDE ",
+            c: "PASS THE VEHICLE FROM ANY CONVENIENT SIDE ",
+            d: "NEVER OVERTAKE AT ALL. ",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 17,
+          question:
+            "AS YOU APPROACH AN INTERSECTION, YOU SHOULD CHECK FOR TRAFFIC ON YOUR LEFT AND RIGHT. ",
+          imageID: null,
+          options: {
+            a: "AT ALL TIMES BEFORE ENTERING THE INTERSECTION. ",
+            b: "ONLY WHEN THE TRAFFIC IS HEAVY ",
+            c: "ONLY WHEN YOU APPROACH A STOP SIGN. ",
+            d: "NONE OF THE ABOVE ",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 18,
+          question:
+            "WHILE DRIVING ON THE MOTORWAY YOU HAVE TO SLOW DOWN QUICKLY DUE TO A HAZARD. WHAT SHOULD YOU DO? ",
+          imageID: null,
+          options: {
+            a: "SOUND YOUR HORN ",
+            b: "SWITCH ON YOUR HAZARD LIGHT ",
+            c: "SWITCH ON YOUR FOG LIGHT ",
+            d: "SWITCH ON YOUR HEADLIGHT TO FULL BEAM ",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 19,
+          question:
+            "YOU DRIVE UP TO A CORNER WHERE YOU SEE SOME LOOSE GRAVEL ON THE ROAD. YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "CHECK THE MIRRORS AND CHANGE LANES ",
+            b: "SPEED UP AND DRIVE OVER THE GRAVEL AS QUICKLY AS POSSIBLE. ",
+            c: "SLOW DOWN ",
+            d: "NONE OF THE ABOVE ",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 20,
+          question:
+            "WHEN YOU HAVE STARTED TO OVERTAKE THE CAR AHEAD, YOU NOTICE THAT ITS RIGHT INDICATOR IS FLASHING. YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "ACCELERATE QUICKLY TO GET PASS ",
+            b: "IMMEDIATELY BRAKE TO A STOP ",
+            c: "FLASH YOUR HEADLIGHTS AND ACCELERATE PASS. ",
+            d: "CHECK YOUR MIRROR AND MOVE BACK BEHIND THE CAR. ",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 21,
+          question:
+            "A DOTTED WHITE CENTRAL LINE ON THE ROAD MEANS THAT YOU MAY ",
+          imageID: null,
+          options: {
+            a: "CROSS IT WHENEVER YOU FEEL ",
+            b: "CROSS IT WHEN THERE IS NO TRAFFIC COMING FROM THE OPPOSITE DIRECTION ",
+            c: "NEVER CROSS IT UNDER ANY CIRCUMSTANCES ",
+            d: "CROSS IT WHEN IT IS SAFE TO DO SO BUT SHOULD COME BACK TO YOUR LANE AFTER OVERTAKING ",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 22,
+          question:
+            "A CONTINUOUS YELLOW OR WHITE LINE IN THE CENTER OF THE ROAD INDICATES THAT YOU MAY CROSS IT ",
+          imageID: null,
+          options: {
+            a: "WHENEVER YOU FEEL IT IS SAFE TO DO SO ",
+            b: "WHEN THERE IS NO TRAFFIC COMING FROM THE OPPOSITE DIRECTION ",
+            c: "UNDER NO CIRCUMSTANCES ",
+            d: "BUT AVOID AS FAR AS POSSIBLE ",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 23,
+          question:
+            "TWO CONTINUOUS YELLOW LINES IN THE MIDDLE OF THE ROAD INDICATE THAT ",
+          imageID: null,
+          options: {
+            a: "OVERTAKING PERMITTED ",
+            b: "OVERTAKING NOT PERMITTED ",
+            c: "OVERTAKING AND RIGHT TURNING BOTH ARE NOT PERMITTED ",
+            d: "OVERTAKING NOT PERMITTED BUT RIGHT TURN PERMITTED. ",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 24,
+          question:
+            "SPEED LIMIT SIGNS INDICATE THE MAXIMUM SPEED DURING IDEAL CONDITIONS. ",
+          imageID: null,
+          options: {
+            a: "TRUE ",
+            b: "FALSE ",
+            c: "BOTH ",
+            d: "NONE ",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 25,
+          question:
+            "WHILE APPROACHING A PEDESTRIAN CROSSING WHICH IS CONTROLLED BY A TRAFFIC SIGNAL, THE SIGNAL HAS TURNED GREEN FOR YOU. BUT THE PEDESTRIANS ARE STILL CROSSING. YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "SLOW DOWN AND GIVE WAY TO PEDESTRIANS ",
+            b: "SPEED UP SINCE THE SIGNAL IS IN YOUR FAVOUR ",
+            c: "SPEED UP BUT TAKE CARE OF THE PEDESTRIANS ",
+            d: "NONE OF THE ABOVE ",
+          },
+          answerOption: "a",
+        },
+
+        {
+          id: 26,
+          question:
+            "UNDER WHAT CIRCUMSTANCES YOU WILL NOT GO FORWARD WHEN THE SIGNAL LIGHTS ARE IN YOUR FAVOUR? ",
+          imageID: null,
+          options: {
+            a: "IF ROAD REPAIR WORK IS IN PROGRESS NEAR THE INTERSECTION",
+            b: "IF YOU WANT TO GIVE COIN TO A BEGGAR WHO IS A LITTLE AWAY FROM YOU",
+            c: "IF BY DOING SO, YOU WILL BE BLOCKING THE INTERSECTION",
+            d: "IF A POLICEMAN ON DUTY HAS SIGNALLED YOU TO STOP",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 27,
+          question: "A FLASHING RED LIGHT AT AN INTER SECTION MEANS ",
+          imageID: null,
+          options: {
+            a: "YOU SHOULD SLOW DOWN AND DRIVE WITH INCREASED CAUTION.",
+            b: "YOU SHOULD SLOW DOWN, AND GIVE RIGHT WAY TO VEHICLES APPROACHING FROM LEFT OR RIGHT SIDE",
+            c: "SIGNAL LIGHT IS OUT OF ORDER AND AS SUCH YOU SHOULD PROCEED WITH CAUTION.",
+            d: "YOU SHOULD STOP, GIVE WAY TO VEHICLES IN THE PRIORITY ROAD AND PROCEED ONLY WHEN THE WAY IS CLEAR",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 28,
+          question:
+            "WHEN YOU APPROACH AN INTERSECTION, THE GREEN SIGNAL HAS JUST CHANGED INTO AMBER, YOU SHOULD ",
+          imageID: "img28",
+          options: {
+            a: "HURRY UP AND CROSS",
+            b: "APPLY BRAKES AND CROSS",
+            c: "SEE, IF YOU HAVE CROSSED THE STOP LINE OR ARE SO CLOSE TO IT THAT YOU CANNOT STOP SAFELY, CROSS THE INTERSECTION",
+            d: "SEE, IF THERE IS NO POLICEMAN, CROSS, OTHERWISE STOP.",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 29,
+          question:
+            "WHICH OF THESE LIGHTS WILL COME AFTER AMBER AT A TRAFFIC LIGHT? ",
+          imageID: null,
+          options: {
+            a: "RED",
+            b: "GREEN",
+            c: "WITH CAUTION BLUE",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 30,
+          question:
+            "AS YOU APPROACH THE STOP LINE AT AN INTERSECTION YOU SEE THE LIGHT TURN AMBER. YOU SHOULD ",
+          imageID: "img30",
+          options: {
+            a: "PREPARE TO GO",
+            b: "GO IF THE WAY IS CLEAR",
+            c: "GO IF NO PEDESTRIANS ARE CROSSING",
+            d: "GET READY TO STOP BEFORE THE STOP LINE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 31,
+          question:
+            "WHILE DRIVING YOU DECIDED TO STOP IMMEDIATELY THE CORRECT HAND SIGNAL IS ",
+          imageID: null,
+          options: {
+            a: "EXTEND RIGHT ARM HORIZONTAL TO THE GROUND WITH PALM DOWNWARDS",
+            b: "EXTEND THE RIGHT ARM & BEND THE ELBOW AT RIGHT ANGLES AND TURNING PALM TO THE FRONT.",
+            c: "NO SIGNAL REQUIRED",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 32,
+          question:
+            "YOU ARE DRIVING TOWARDS AN INTERSECTION WHERE THERE IS A FLASHING YELLOW TRAFFIC LIGHT. YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "SLOW DOWN AND PROCEED WITH CAUTION",
+            b: "STOP, IF POSSIBLE TO DO SO, SAFELY",
+            c: "CONTINUE AT THE SAME SPEED",
+            d: "RUSH PAST THE SIGNAL",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 33,
+          question: "BEFORE TURNING YOUR VEHICLE ON THE ROAD YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "CHECK ALL AROUND FOR OTHER ROAD USERS",
+            b: "USE A DRIVEWAY IF POSSIBLE",
+            c: "KEEP YOUR HAND ON THE HANDBRAKE THROUGHOUT",
+            d: "SWITCH ON YOUR HEADLIGHTS",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 34,
+          question:
+            "YOUR MOBILE PHONE RINGS WHILE YOU ARE DRIVING. YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "STOP IMMEDIATELY",
+            b: "ANSWER IT IMMEDIATELY",
+            c: "STOP AT A SUITABLE PLACE AND ATTEND PHONE",
+            d: "STOP AT THE NEAREST KERB",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 35,
+          question:
+            "YOU ARE MOST LIKELY TO LOSE CONCENTRATION WHILE DRIVING IF YOU ",
+          imageID: null,
+          options: {
+            a: "SWITCH ON THE A.C",
+            b: "USE A MOBILE PHONE",
+            c: "LOOK AT THE REAR VIEW MIRRORS",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 36,
+          question:
+            "YOU ARE APPROACHING A ZEBRA CROSSING. PEDESTRIANS ARE WAITING TO CROSS. YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "GIVE WAY TO THE ELDERLY AND DISABLED ONLY",
+            b: "SLOW DOWN AND BE PREPARED TO STOP",
+            c: "USE YOUR HEADLIGHTS TO INDICATE THAT THEY CAN CROSS",
+            d: "WAVE AT THEM TO CROSS THE ROAD.",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 37,
+          question: "WHICH OF THE FOLLOWING SHOULD YOU DO BEFORE STOPPING? ",
+          imageID: null,
+          options: {
+            a: "SOUND THE HORN",
+            b: "USE THE MIRRORS",
+            c: "SELECT A HIGHER GEAR",
+            d: "FLASH YOUR HEADLIGHTS",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 38,
+          question:
+            "WHEN YOU ARE MOVING OFF FROM BEHIND A PARKED CAR YOU SHOULD ",
+          imageID: "img38",
+          options: {
+            a: "LOOK AROUND BEFORE YOU MOVE OFF",
+            b: "USE ALL THE MIRRORS ON THE VEHICLE",
+            c: "GIVE A SIGNAL",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 39,
+          question:
+            "WHEN BEING FOLLOWED BY AN AMBULANCE SHOWING A FLASHING BLUE LIGHT YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "STOP SAFELY AND AS SOON AS POSSIBLE TO LET IT PASS",
+            b: "ACCELERATE HARD TO GET AWAY FROM IT",
+            c: "MAINTAIN YOUR SPEED AND COURSE",
+            d: "BRAKE HARSHLY AND IMMEDIATELY STOP ON THE ROAD.",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 40,
+          question: "WHEN PARKING AND LEAVING YOUR VEHICLE YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "PARK UNDER A SHADY TREE",
+            b: "PARK UNDER THE SUN",
+            c: "PARK ON A QUIET ROAD",
+            d: "ENGAGE THE STEERING LOCK",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 41,
+          question:
+            "WHICH OF THE FOLLOWING SHOULD BE ALLOWED EXTRA ROOM WHEN OVERTAKING? ",
+          imageID: null,
+          options: {
+            a: "MOTORCYCLES & BICYCLES",
+            b: "TRACTOR",
+            c: "TRAILERS",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 42,
+          question: "WHEN MAY YOU STOP ON A MOTORWAY? ",
+          imageID: null,
+          options: {
+            a: "IF TRAFFIC SIGNAL IS RED",
+            b: "WHEN TOLD BY THE POLICE",
+            c: "IN AN EMERGENCY OR A BREAKDOWN",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 43,
+          question: "IN WHICH OF THESE PLACES YOU MUST NOT PARK OR WAIT? ",
+          imageID: null,
+          options: {
+            a: "AT A BUS STOP",
+            b: "OPPOSITE A TRAFFIC ISLAND",
+            c: "IN FRONT OF SOMEONE ELSE'S GATE",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 44,
+          question:
+            "WHEN LEAVING YOUR VEHICLE WHERE SHOULD YOU PARK IF POSSIBLE? ",
+          imageID: null,
+          options: {
+            a: "OPPOSITE A TRAFFIC ISLAND",
+            b: "IN A SECURE PARKING PLACE",
+            c: "ON A BEND",
+            d: "NEAR A TUNNEL",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 45,
+          question: "WHICH OF THESE PLACES YOU MUST NOT PARK? ",
+          imageID: null,
+          options: {
+            a: "NEAR A SHOPPING MALL",
+            b: "AT OR NEAR A BUS STOP",
+            c: "WITHIN 10 METRES (32FEET) OF A JUNCTION",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 46,
+          question: "IN WHICH OF THESE PLACE YOU MUST NOT PARK? ",
+          imageID: null,
+          options: {
+            a: "NEAR A SCHOOL ENTRANCE",
+            b: "NEAR A POLICE STATION",
+            c: "ON A SIDE ROAD",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 47,
+          question:
+            "WHEN LEAVING YOUR VEHICLE UNATTENDED FOR A FEW MINUTES YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "LOCK IT AND REMOVE THE KEY",
+            b: "LEAVE THE ENGINE RUNNING",
+            c: "SWITCH THE ENGINE OFF BUT LEAVE THE KEY IN THE VEHICLE",
+            d: "PARK NEAR A TRAFFIC POLICEMAN",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 48,
+          question:
+            "AT A TWO ROAD JUNCTION THERE ARE NO ROAD SIGNS. TWO VEHICLES APPROACH. WHICH HAS PRIORITY? ",
+          imageID: "img48",
+          options: {
+            a: "NEITHER VEHICLE",
+            b: "THE VEHICLE TRAVELLING THE FASTEST",
+            c: "THE VEHICLE ON THE WIDEST ROAD",
+            d: "VEHICLE APPROACHING FROM THE RIGHT",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 49,
+          question:
+            "PEDESTRIANS ARE WAITING TO CROSS AT A ZEBRA CROSSING. THEY ARE STANDING ON THE PAVEMENT YOU SHOULD NORMALLY ",
+          imageID: null,
+          options: {
+            a: "GO ON QUICKLY BEFORE THEY STEP ONTO THE CROSSING",
+            b: "STOP ON THE ZEBRA CROSSING AND LET THEM CROSS",
+            c: "STOP BEFORE THE STOP LINE, LET THEM CROSS, WAIT PATIENTLY",
+            d: "IGNORE THEM AS THEY ARE STILL ON THE PAVEMENT",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 50,
+          question: "YOU MUST NOT REVERSE ",
+          imageID: null,
+          options: {
+            a: "ON A BUSY ROAD",
+            b: "ON A ONE WAY ROAD",
+            c: "ON A ROUND ABOUT",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 51,
+          question:
+            "WHEN YOU ARE NOT SURE THAT IT IS SAFE TO REVERSE YOUR VEHICLE YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "USE YOUR HORN",
+            b: "RAISE YOUR ENGINE",
+            c: "GET OUT AND CHECK",
+            d: "REVERSE SLOWLY",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 52,
+          question: "WHEN MAY YOU REVERSE FROM A SIDE ROAD INTO A MAIN ROAD? ",
+          imageID: null,
+          options: {
+            a: "ONLY IF BOTH ROADS ARE CLEAR OF TRAFFIC",
+            b: "NOT AT ANY TIME",
+            c: "AT ANY TIME",
+            d: "ONLY IF THE MAIN ROAD IS CLEAR OF TRAFFIC",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 53,
+          question:
+            "YOUR ARE SIGNALLING TO TURN RIGHT IN BUSY TRAFFIC. HOW WOULD YOU CONFIRM YOUR INTENTION SAFELY? ",
+          imageID: null,
+          options: {
+            a: "SOUND THE HORN",
+            b: "GIVE AN ARM SIGNAL",
+            c: "FLASH YOUR HEADLIGHTS",
+            d: "POSITION OVER THE CENTRE LINE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 54,
+          question:
+            "WHEN TRAFFIC LIGHTS ARE OUT OF ORDER, WHAT PRECAUTION SHOULD YOU TAKE? ",
+          imageID: null,
+          options: {
+            a: "SLOW DOWN AND MOVE",
+            b: "STOP, LOOK RIGHT AND LEFT AND PROCEED CAUTIOUSLY.",
+            c: "NO PRECAUTION IS NECESSARY",
+            d: "MOVE AT THE SAME SPEED",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 55,
+          question:
+            "THERE IS A POLICE CAR FOLLOWING YOU, THE POLICE OFFICER FLASHES THE HEADLIGHTS AND POINTS TO THE LEFT. WHAT SHOULD YOU DO? ",
+          imageID: null,
+          options: {
+            a: "TURN AT THE NEXT LEFT",
+            b: "STOP ON THE LEFT",
+            c: "STOP IMMEDIATELY",
+            d: "MOVE OVER TO THE RIGHT",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 56,
+          question: "WHEN APPROACHING A ROUNDABOUT GIVE WAY TO ",
+          imageID: "img56",
+          options: {
+            a: "CYCLISTS",
+            b: "SLOW-MOVING VEHICLES",
+            c: "TRAFFIC ON YOUR RIGHT",
+            d: "TRAFFIC ON YOUR LEFT",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 57,
+          question:
+            "YOU ARE REVERSING A CAR INTO A SIDE ROAD. WHILE REVERSING YOU SHOULD MAINLY LOOK ",
+          imageID: null,
+          options: {
+            a: "IN THE REAR VIEW MIRROR",
+            b: "THROUGH THE REAR WINDSCREEN",
+            c: "IN THE SIDE VIEW MIRROR NEAREST THE KERB",
+            d: "IN THE SIDE VIEW MIRROR AWAY FROM THE KERB",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 58,
+          question: "TO MOVE OFF SAFELY FROM A PARKED POSITION YOU SHOULD ",
+          imageID: null,
+          options: {
+            a: "USE YOUR MIRRORS AND LOOK AROUND FOR A FINAL CHECK",
+            b: "SIGNAL FOR OTHER DRIVERS TO SLOW DOWN",
+            c: "NOT LOOK AROUND IF THERE IS A PARKED VEHICLE CLOSE IN FRONT OF YOU",
+            d: "GIVE A HAND SIGNAL AS WELL AS USE YOUR INDICATOR",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 59,
+          question: "WHEN APPROACHING ROAD WORKS, YOU SHOULD NOT ",
+          imageID: null,
+          options: {
+            a: "START TO OVERTAKE & INCREASE SPEED",
+            b: "FLASH YOUR HEADLIGHTS",
+            c: "GIVE ANY SIGNALS",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 60,
+          question:
+            "WHICH IS THE BEST REASON FOR NOT FOLLOWING OTHER VEHICLES TOO CLOSELY? ",
+          imageID: "img60",
+          options: {
+            a: "TO AVOID EXHAUST FUMES",
+            b: "TO AVOID GETTING DIRTY FROM WHEEL SPRAY",
+            c: "TO GET INCREASED ANGLE OF VISION OF TRAFFIC CONDITIONS AHEAD AND TO AVOID HITTING VEHICLES IN FRONT, IF THEY STOP SUDDENLY",
+            d: "AS IT WILL REQUIRE LESS ATTENTION FOR THE OPERATION OF YOUR VEHICLE",
+          },
+          answerOption: "c",
+        },
+
+        {
+          id: 61,
+          question:
+            "WHEN APPROACHING FROM THE REAR, WHERE TWO LANES OF TRAFFIC HAVE STOPPED AT A SIGNAL, YOU SHOULD?",
+          imageID: null,
+          options: {
+            a: "PASS ALL THE VEHICLES AND STOP IN FRONT OF THEM",
+            b: "PASS BETWEEN ALL THE VEHICLES STANDING IN THE TWO LANES",
+            c: "STOP BEHIND THE LAST VEHICLE IN THE APPROPRIATE LANE",
+            d: "STOP ANYWHERE",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 62,
+          question:
+            "A PEDESTRIAN IS CROSSING THE STREET AT AN UNMARKED CROSS-WALK, YOU SHOULD",
+          imageID: null,
+          options: {
+            a: 'YIELD TO THE PEDESTRIAN THE "RIGHT OF WAY"',
+            b: "PROCEED WITH CARE",
+            c: "REDUCE SPEED AND WARN PEDESTRIAN.",
+            d: "WAVE TO THE PEDESTRIAN TO CROSS QUICKLY",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 63,
+          question:
+            "WHILE DRIVING, YOU WISH TO CHANGE FROM ONE LANE TO ANOTHER, YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "GIVE THE PROPER TURN SIGNAL",
+            b: "CHANGE LANES ONLY WHEN IT IS SAFE TO DO SO BY GIVING THE PROPER TURN SIGNAL",
+            c: "NEVER CHANGE LANES AS IT IS AGAINST THE LAW",
+            d: "LANE SHOULD NOT BE CHANGED",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 64,
+          question:
+            "YOU APPROACH AN INTERSECTION THAT DOES NOT HAVE TRAFFIC LIGHTS, A POLICEMAN OR TRAFFIC SIGNS, YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "SLOW DOWN AND MOVE WITH CAUTION",
+            b: "COME TO A FULL STOP",
+            c: "DONT CHANGE SPEED IF THE WAY IS CLEAR.",
+            d: "WAIT FOR THE POLICEMAN TO ARRIVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 65,
+          question: "WHAT MUST YOU DO IF YOU MISS YOUR EXIT ON A FREEWAY?",
+          imageID: null,
+          options: {
+            a: "CONTINUE UNTIL YOU REACH THE NEXT APPROPRIATE EXIT.",
+            b: "STOP AND REVERSE BACK ALONG THE FREE WAY TO THE EXIT YOU MISSED.",
+            c: "STOP IMMEDIATELY AND TURN AROUND",
+            d: "LOOK INTO THE REAR VIEW MIRROR AND REVERSE.",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 66,
+          question:
+            "YOU ARE ABOUT TO TAKE A RIGHT TURN AT AN INTERSECTION. THE SIGNAL IS GREEN FOR YOU. YOU HEAR A SIREN AND SEE A FIRE BRIGADE ABOUT TO OVERTAKE YOU. YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "CONTINUE TO MAKE THE TURN SINCE YOU HAVE THE RIGHT OF WAY.",
+            b: "STOP AND LET THE FIRE BRIGADE OVERTAKE YOU.",
+            c: "SPEED UP AND BEAT THE FIRE BRIGADE.",
+            d: "ANY OF THE ABOVE.",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 67,
+          question:
+            "WHILE DRIVING YOU APPROACH A LARGE PUDDLE THAT IS CLOSE TO THE LEFT-HAND KERB. PEDESTRIANS ARE CLOSE TO THE WATER. YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "IGNORE THE PUDDLE",
+            b: "BRAKE SUDDENLY AND SOUND YOUR HORN",
+            c: "SLOW DOWN BEFORE THE PUDDLE & TRY TO AVOID SPLASHING THE PEDESTRIANS",
+            d: "WAVE AT THE PEDESTRIANS TO KEEP BACK",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 68,
+          question:
+            "WHAT ACTION WOULD YOU TAKE WHEN ELDERLY PEOPLE ARE CROSSING THE ROAD?",
+          imageID: null,
+          options: {
+            a: "WAVE THEM ACROSS SO THEY KNOW THAT YOU HAVE SEEN THEM.",
+            b: "BE PATIENT AND GIVE THEM SUFFICIENT TIME TO CROSS.",
+            c: "SPEED UP THE ENGINE TO LET THEM KNOW THAT YOU ARE WAITING.",
+            d: "TAP THE HORN IN CASE THEY ARE HARD OF HEARING.",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 69,
+          question:
+            "YOU SEE A PEDESTRIAN WITH A STICK AND DARK GLASSES TRYING TO CROSS THE ROAD. WHAT DO YOU INTERPRET?",
+          imageID: null,
+          options: {
+            a: "THE PERSON IS DUMB",
+            b: "THE PERSON IS DEAF",
+            c: "THE PERSON IN NORMAL",
+            d: "THE PERSON IS BLIND",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 70,
+          question:
+            "WHEN DRIVING NEAR CHILDREN PLAYING OR WALKING NEAR THE EDGE OF THE ROAD, YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "WAIT FOR THEM TO FINISH THEIR GAME",
+            b: "SOUND YOUR HORN TO WARN THEM OF YOUR PRESENCE.",
+            c: "SLOW DOWN, AND BE READY TO MAKE A SAFE STOP.",
+            d: "CONTINUE AT THE SAME SPEED AND DRIVE AROUND THEM.",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 71,
+          question:
+            "WHEN DRIVING IN AN AREA WHERE THERE ARE MANY PEDESTRIANS (E.G. A BUS STOP) IT IS IMPORTANT TO",
+          imageID: null,
+          options: {
+            a: "SOUND YOUR HORN REPEATEDLY",
+            b: "PUT YOUR HEADLIGHTS ON HIGH BEAM SO THEY CAN SEE YOU BETTER.",
+            c: "INCREASE YOUR SPEED TO AVOID THE CHANGE OF HITTING THEM.",
+            d: "SLOW DOWN AND WATCH FOR AN INDICATION THAT THEY WILL ENTER THE ROAD.",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 72,
+          question:
+            "A VEHICLE AHEAD OF YOU HAS STOPPED AT A PEDESTRIAN CROSSING. YOU",
+          imageID: null,
+          options: {
+            a: "MUST NOT OVERTAKE THE VEHICLE",
+            b: "MAY OVERTAKE THE VEHICLE IF THERE ARE NO PEDESTRIANS ON THE CROSSING",
+            c: "MAY OVERTAKE THE VEHICLE IF THERE ARE NO OTHER VEHICLES COMING THE OTHER WAY.",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 73,
+          question: "WHILE DRIVING MOTOR VEHICLE ON THE ROAD",
+          imageID: null,
+          options: {
+            a: "YOU SHOULD DRIVE THE VEHICLE CLOSE TO THE LEFT HAND SIDE OF THE ROAD",
+            b: "YOU SHOULD DRIVE THE VEHICLE CLOSE TO THE RIGHT HAND SIDE OF THE ROAD",
+            c: "YOU HAVE CAREFULLY KEEP TO THE MIDDLE OF THE ROAD",
+            d: "YOU CAN DRIVE EITHER TO THE RIGHT OR THE LEFT AS PER CONVENIENCE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 74,
+          question:
+            "WHILE DRIVING MOTOR VEHICLE ON THE ROAD YOU SHOULD ALLOW THE TRAFFIC COMING FROM THE OPPOSITE DIRECTION",
+          imageID: null,
+          options: {
+            a: "TO PASS TO THE RIGHT HAND SIDE",
+            b: "TO PASS TO THE LEFT HAND SIDE",
+            c: "TO PASS AT THE CENTRE OF THE ROAD",
+            d: "TO PASS FROM EITHER LEFT OR RIGHT HAND SIDE AS PER CONVENIENCE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 75,
+          question:
+            "WHEN YOU WANT TO TURN INTO THE ROAD ON THE LEFT SIDE, YOU HAVE TO DRIVE",
+          imageID: null,
+          options: {
+            a: "AS CLOSE AS MAYBE TO THE LEFT SIDE OF THE ROAD",
+            b: "AS CLOSE AS MAYBE TO THE RIGHT SIDE OF THE ROAD",
+            c: "AT THE CENTRE OF THE ROAD TO FACILITATE EASY TURNING OF THE VEHICLE",
+            d: "TO THE RIGHT SIDE OR LEFT SIDE OF THE ROAD AS PER CONVENIENCE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 76,
+          question:
+            "WHEN YOU WANT TO TURN INTO THE ROAD ON THE RIGHT SIDE, YOU HAVE TO DRIVE",
+          imageID: null,
+          options: {
+            a: "WITH SIGNAL INDICATOR TO THE RIGHT",
+            b: "AS NEAR AS MAYBE TO THE CENTRE OF ROAD ALONG WHICH YOU ARE TRAVELLING",
+            c: "ARRIVE AS NEAR AS MAYBE TO LEFT OF THE ROAD WHICH YOU ARE ENTERING",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 77,
+          question:
+            "WHEN YOU WANT TO OVERTAKE A VEHICLE IN FRONT OF YOU, YOU CAN OVERTAKE",
+          imageID: null,
+          options: {
+            a: "ONLY FROM THE RIGHT HAND SIDE OF THAT VEHICLE",
+            b: "ONLY FROM THE LEFT HAND SIDE OF THAT VEHICLE",
+            c: "EITHER FROM RIGHT OR LEFT HAND SIDE OF THE VEHICLE",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 78,
+          question:
+            "YOU CAN OVERTAKE A VEHICLE IN FRONT OF YOU FROM THE LEFT HAND SIDE",
+          imageID: null,
+          options: {
+            a: "WHEN THE DRIVER OF THAT VEHICLE INDICATES INTENTION TO TURN TO THE RIGHT AND HAS DRAWN HIS VEHICLE TO THE CENTRE OF THE ROAD",
+            b: "WHEN THE DRIVER OF THAT VEHICLE IS NOT RESPONDING TO YOUR SIGNALS",
+            c: "WHEN YOU ARE IN A HURRY TO REACH YOUR DESTINATION",
+            d: "ON THE NATIONAL HIGHWAYS",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 79,
+          question:
+            "YOU WANT TO OVERTAKE A VEHICLE IN FRONT OF YOU. YOU SUDDENLY FIND THAT THE VEHICLE COMING BEHIND YOU HAS BEGUN TO OVERTAKE YOU. WHAT SHOULD YOU DO.?",
+          imageID: null,
+          options: {
+            a: "OVERTAKE THE FRONT VEHICLE WITH HIGHER SPEED",
+            b: "CONTINUE DRIVING WITHOUT GIVING WAY TO THE VEHICLE BEHIND",
+            c: "STOP OVERTAKING THE VEHICLE IN FRONT AS IT IS NOT SAFE TO DO SO",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 80,
+          question: "OVERTAKING IS PROHIBITED IN WHICH OF THE FOLLOWING CASES",
+          imageID: null,
+          options: {
+            a: "IF OVERTAKING IS LIKELY TO CAUSE INCONVENIENCE OR DANGER TO OTHER TRAFFIC PROCEEDING IN ANY DIRECTION",
+            b: "IF THE VEHICLE IS NEAR A BEND, CORNER OR HILL MAKING THE ROAD AHEAD NOT CLEARLY VISIBLE",
+            c: "IF THE DRIVER OF THE VEHICLE IN FRONT OF YOU HAS NOT SIGNALLED THAT YOU MAY OVERTAKE HIM",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 81,
+          question:
+            "YOU ARE DRIVING A VEHICLE. ANOTHER VEHICLE FROM BEHIND WANTS TO OVERTAKE YOU. WHAT SHOULD YOU DO.?",
+          imageID: null,
+          options: {
+            a: "INCREASE THE SPEED OF YOUR VEHICLE",
+            b: "GO WITH YOUR OWN SPEED WITHOUT BOTHERING ABOUT THAT VEHICLE",
+            c: "SLOW DOWN AND ALLOW THE VEHICLE TO OVERTAKE",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 82,
+          question: "YOU SHALL SLOW DOWN THE VEHICLE",
+          imageID: null,
+          options: {
+            a: "WHEN APPROACHING A ROAD INTERSECTION",
+            b: "WHEN APPROACHING A ROAD JUNCTION",
+            c: "WHEN APPROACHING A PEDESTRIAN CROSSING",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 83,
+          question: "WHEN YOU ARE ENTERING INTO A MAIN ROAD AT A ROAD JUNCTION",
+          imageID: null,
+          options: {
+            a: "YOU SHOULD GIVE WAY TO THE VEHICLES PROCEEDING ALONG THAT ROAD",
+            b: "YOU CAN SPEED UP INTO THE MAIN ROAD",
+            c: "YOU CAN OBSTRUCT ALL THE VEHICLES COMING FROM YOUR RIGHT HAND SIDE",
+            d: "YOU SIGNAL THAT THE TRAFFIC ON THE MAIN ROAD SHALL STOP FOR YOU",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 84,
+          question:
+            "WHEN YOU ARE DRIVING ON THE ROAD, YOU SHALL GIVE FREE PASSAGE TO",
+          imageID: null,
+          options: {
+            a: "FIRE SERVICE VEHICLES",
+            b: "AMBULANCES",
+            c: "HEAVY VEHICLES",
+            d: "ONLY 1 & 2",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 85,
+          question:
+            "AT A TRAFFIC JUNCTION, YOU GOT A GREEN SIGNAL TO MOVE ON. BUT THE PEDESTRIANS ARE STILL ON THE ZEBRA CROSSING. WHAT SHOULD YOU DO.?",
+          imageID: null,
+          options: {
+            a: "MOVE YOUR VEHICLE BY BLOWING HORN",
+            b: "PATIENTLY WAIT AND ALLOW PEDESTRIANS TO PASS",
+            c: "SIGNAL THE PEDESTRIANS TO STOP",
+            d: "TURN YOUR VEHICLE TO THE RIGHT AND GO",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 86,
+          question: "WHEN YOU WANT TO TAKE A U-TURN AT A TRAFFIC JUNCTION",
+          imageID: null,
+          options: {
+            a: "YOU SHOULD FIRST SIGNAL FOR A RIGHT TURN AND WATCH THE REAR VIEW MIRROR AND TURN",
+            b: "YOU SHOULD TAKE U-TURN VERY FAST",
+            c: "YOU SHOULD BRING YOUR VEHICLE TO THE LEFT MOST SIDE OF THE ROAD",
+            d: "BLOW THE HORN AND TAKE U-TURN",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 87,
+          question:
+            "IF YOU WANT TO SLOW DOWN WHILE DRIVING, THE HAND SIGNAL YOU SHOULD GIVE IS",
+          imageID: null,
+          options: {
+            a: "EXTEND THE RIGHT ARM, PALM DOWN, TO THE RIGHT OF THE VEHICLE AND MOVE THE EXTENDED ARM UP AND DOWN SEVERAL TIMES",
+            b: "RAISE THE RIGHT FORE ARM VERTICALLY OUT SIDE TO THE RIGHT OF THE VEHICLE, PALM TO THE FRONT",
+            c: "EXTEND RIGHT ARM IN HORIZONTAL POSITION TO THE RIGHT OF THE VEHICLE WITH PALM OF THE HAND TURNED TO THE FRONT",
+            d: "EXTEND RIGHT ARM TO THE RIGHT OF THE VEHICLE AND ROTATE IT IN AN ANTI CLOCK WISE DIRECTION",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 88,
+          question:
+            "IF YOU ARE ABOUT TO STOP THE VEHICLE ON THE ROAD, THE HAND SIGNAL YOU SHOULD GIVE IS",
+          imageID: null,
+          options: {
+            a: "EXTEND THE RIGHT ARM, PALM DOWN, TO THE RIGHT OF THE VEHICLE AND MOVE THE EXTENDED ARM UP AND DOWN SEVERAL TIMES",
+            b: "RAISE THE RIGHT FORE ARM VERTICALLY OUT SIDE TO THE RIGHT OF THE VEHICLE, PALM TO THE FRONT",
+            c: "EXTEND RIGHT ARM IN HORIZONTAL POSITION TO THE RIGHT OF THE VEHICLE WITH PALM OF THE HAND TURNED TO THE FRONT",
+            d: "EXTEND RIGHT ARM TO THE RIGHT OF THE VEHICLE AND ROTATE IT IN AN ANTI CLOCK WISE DIRECTION",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 89,
+          question:
+            "IF YOU ARE ABOUT TO TURN TO THE RIGHT, THE HAND SIGNAL YOU SHOULD GIVE IS",
+          imageID: null,
+          options: {
+            a: "EXTEND THE RIGHT ARM, PALM DOWN, TO THE RIGHT OF THE VEHICLE AND MOVE THE EXTENDED ARM UP AND DOWN SEVERAL TIMES",
+            b: "RAISE THE RIGHT FORE ARM VERTICALLY OUT SIDE TO THE RIGHT OF THE VEHICLE, PALM TO THE FRONT",
+            c: "EXTEND RIGHT ARM IN HORIZONTAL POSITION TO THE RIGHT OF THE VEHICLE WITH PALM OF THE HAND TURNED TO THE FRONT",
+            d: "EXTEND RIGHT ARM TO THE RIGHT OF THE VEHICLE AND ROTATE IT IN AN ANTI CLOCK WISE DIRECTION",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 90,
+          question:
+            "IF YOU ARE ABOUT TO TURN TO THE LEFT, THE HAND SIGNAL YOU SHOULD GIVE IS",
+          imageID: null,
+          options: {
+            a: "EXTEND THE RIGHT ARM, PALM DOWN, TO THE RIGHT OF THE VEHICLE AND MOVE THE EXTENDED ARM UP AND DOWN SEVERAL TIMES",
+            b: "RAISE THE RIGHT FORE ARM VERTICALLY OUT SIDE TO THE RIGHT OF THE VEHICLE, PALM TO THE FRONT",
+            c: "EXTEND RIGHT ARM IN HORIZONTAL POSITION TO THE RIGHT OF THE VEHICLE WITH PALM OF THE HAND TURNED TO THE FRONT",
+            d: "EXTEND RIGHT ARM TO THE RIGHT OF THE VEHICLE AND ROTATE IT IN AN ANTI CLOCK WISE DIRECTION",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 91,
+          question:
+            "IN WHICH OF THE FOLLOWING PLACES CAN YOU PARK YOUR VEHICLE",
+          imageID: null,
+          options: {
+            a: "NEAR A ROAD CROSSING",
+            b: "NEAR A BEND ON THE ROAD",
+            c: "ON A FOOT PATH",
+            d: "NONE OF THESE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 92,
+          question:
+            "IN WHICH OF THE FOLLOWING PLACES CAN YOU PARK YOUR VEHICLE",
+          imageID: null,
+          options: {
+            a: "NEAR TRAFFIC LIGHT",
+            b: "NEAR PEDESTRIANS CROSSING",
+            c: "ON A MAIN ROAD WITH HEAVY TRAFFIC",
+            d: "NONE OF THESE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 93,
+          question:
+            "IN WHICH OF THE FOLLOWING PLACES CAN YOU PARK YOUR VEHICLE",
+          imageID: null,
+          options: {
+            a: "OPPOSITE ANOTHER PARKED VEHICLE ON THE ROAD",
+            b: "ALONG SIDE ANOTHER PARKED VEHICLE ON THE ROAD",
+            c: "WHERE THERE IS A CONTINUOUS WHITE LINE ON THE ROAD",
+            d: "IN A PLACE, OFF THE ROAD",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 94,
+          question: "WHILE DRIVING ON A ROAD WHICH IS MARKED INTO LANES",
+          imageID: null,
+          options: {
+            a: "YOU CAN CHANGE LANES WHEN THERE IS NO TRAFFIC",
+            b: "YOU CAN CHANGE LANES FREELY IF YOU ARE MOVING SLOWLY",
+            c: "YOU CAN CHANGE THE LANE ONLY AFTER GIVING PROPER SIGNAL",
+            d: "THERE ARE NO RESTRICTIONS FOR TWO WHEELERS",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 95,
+          question:
+            "WHEN A ROAD IS MARKED WITH A YELLOW LINE DIVIDING THE ROAD",
+          imageID: null,
+          options: {
+            a: "YOU CAN OVERTAKE THE VEHICLE IN FRONT, WITH OUT CROSSING THE YELLOW LINE",
+            b: "YOU CAN NOT OVERTAKE THE VEHICLE IN FRONT OF YOU",
+            c: "YOU HAVE TO OVERTAKE THE VEHICLE ONLY BY CROSSING THE YELLOW LINE",
+            d: "YOU HAVE TO SIGNAL THE VEHICLE IN FRONT OF YOU TO CROSS THE YELLOW LINE AND THEN OVERTAKE",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 96,
+          question:
+            "YOU ARE DRIVING BEHIND ANOTHER VEHICLE IN A BUSY TRAFFIC, YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "FOLLOW THE FRONT VEHICLE CLOSE BEHIND",
+            b: "KEEP SUFFICIENT DISTANCE FROM THE FRONT VEHICLE TO AVOID COLLISSION",
+            c: "KEEP A VERY LONG DISTANCE FROM THE FRONT VEHICLE",
+            d: "NONE OF THESE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 97,
+          question:
+            "YOU ARE GOING DOWN A NARROW MOUNTAIN ROAD AND YOU FACE ANOTHER VEHICLE IN OPPOSITE DIRECTION. WHAT SHOULD YOU DO",
+          imageID: null,
+          options: {
+            a: "YOU ASK THE UPCOMING VEHICLE TO STOP TO ALLOW YOU TO PROCEED",
+            b: "YOU ALLOW THE UPCOMING VEHICLE TO PASS FIRST",
+            c: "YOU OBSTRUCT THE UPCOMING VEHICLE BY KEEPING YOUR VEHICLE ACROSS",
+            d: "RAISE THE SPEED OF YOUR VEHICLE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 98,
+          question:
+            "A BUS IS STOPPED AT A BUS STOP AHEAD OF YOU. ITS RIGHT INDICATOR IS FLASHING. YOU SHOULD-",
+          imageID: null,
+          options: {
+            a: "FLASH YOUR HEADLIGHTS AND SLOW DOWN",
+            b: "SLOW DOWN AND GIVE WAY IF IT IS SAFE TO DO SO",
+            c: "SOUND YOUR HORN AND KEEP GOING",
+            d: "SLOW DOWN AND THEN SOUND YOUR HORN",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 99,
+          question:
+            "YOU ARE APPROACHING THE TRAFFIC LIGHTS THAT HAVE BEEN GREEN FOR SOME TIME. YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "ACCELERATE HARD",
+            b: "MAINTAIN YOUR SPEED",
+            c: "BE READY TO STOP",
+            d: "BRAKE HARD",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 100,
+          question:
+            "YOU ARE DRIVING BEHIND A LARGE GOODS VEHICLE. IT SIGNALS LEFT BUT STEERS TO THE RIGHT. YOU SHOULD",
+          imageID: "img100.png",
+          options: {
+            a: "SLOW DOWN AND LET THE VEHICLE TURN",
+            b: "DRIVE ON, KEEPING TO THE LEFT",
+            c: "OVERTAKE ON THE RIGHT OF IT",
+            d: "HOLD YOUR SPEED AND SOUND YOUR HORN",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 101,
+          question: "A PERSON HERDING SHEEP ASKS YOU TO STOP. YOU SHOULD-",
+          imageID: null,
+          options: {
+            a: "IGNORE THEM AS THEY HAVE NO AUTHORITY",
+            b: "STOP AND SWITCH OFF YOUR ENGINE",
+            c: "CONTINUE ON BUT DRIVE SLOWLY",
+            d: "TRY AND GET PAST QUICKLY",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 102,
+          question:
+            "YOU CANNOT SEE CLEARLY BEHIND WHEN REVERSING. WHAT SHOULD YOU DO?",
+          imageID: null,
+          options: {
+            a: "OPEN YOUR WINDOW TO LOOK BEHIND",
+            b: "OPEN THE DOOR AND LOOK BEHIND",
+            c: "LOOK IN THE SIDE MIRROR",
+            d: "ASK SOMEONE TO GUIDE YOU",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 103,
+          question:
+            "YOU ARE FOLLOWING TWO CYCLISTS. THEY APPROACH A ROUNDABOUT IN THE LEFT-HAND LANE. IN WHICH DIRECTION SHOULD YOU EXPECT THE CYCLISTS TO GO?",
+          imageID: null,
+          options: {
+            a: "LEFT",
+            b: "RIGHT",
+            c: "ANY DIRECTION",
+            d: "STRAIGHT AHEAD",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 104,
+          question:
+            "YOU ARE ON A NARROW ROAD AT NIGHT. A SLOWER MOVING VEHICLE AHEAD HAS BEEN SIGNALLING RIGHT FOR SOME TIME. WHAT SHOULD YOU DO?",
+          imageID: null,
+          options: {
+            a: "OVERTAKE ON THE LEFT",
+            b: "FLASH YOUR HEADLIGHTS BEFORE OVERTAKING",
+            c: "SIGNAL RIGHT AND SOUND YOUR HORN",
+            d: "WAIT FOR THE SIGNAL TO BE CANCELLED BEFORE OVERTAKING",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 105,
+          question: "WHEN JOINING A MOTORWAY YOU MUST ALWAYS",
+          imageID: "img105.png",
+          options: {
+            a: "USE THE HARD SHOULDER",
+            b: "STOP AT THE END OF THE ACCELERATION LANE",
+            c: "COME TO A STOP BEFORE JOINING THE MOTORWAY",
+            d: "GIVE WAY TO TRAFFIC ALREADY ON THE MOTORWAY",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 106,
+          question:
+            "YOU ARE DRIVING ON A MOTORWAY. BY MISTAKE YOU GO PAST THE EXIT THAT YOU WANTED TO TAKE. YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "CAREFULLY REVERSE ON THE HARD SHOULDER",
+            b: "CARRY ON TO THE NEXT EXIT",
+            c: "CAREFULLY REVERSE IN THE LEFT-HAND LANE",
+            d: "MAKE A U-TURN AT THE NEXT GAP",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 107,
+          question:
+            "YOU ARE LEAVING YOUR VEHICLE PARKED ON A ROAD. WHEN MAY YOU LEAVE THE ENGINE RUNNING?",
+          imageID: null,
+          options: {
+            a: "IF YOUR VEHICLE WILL BE PARKED FOR LESS THAN FIVE MINUTES",
+            b: "IF THE BATTERY IS FLAT",
+            c: "WHEN IN A 20 KMPH ZONE",
+            d: "NOT ON ANY OCCASION",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 108,
+          question: "WHEN GOING STRAIGHT AHEAD AT A ROUNDABOUT YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "INDICATE LEFT BEFORE LEAVING THE ROUNDABOUT",
+            b: "DONT INDICATE AT ANY TIME",
+            c: "INDICATE RIGHT WHEN APPROACHING THE ROUNDABOUT",
+            d: "INDICATE LEFT WHEN APPROACHING THE ROUNDABOUT",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 109,
+          question:
+            "WHILE DRIVING ON A HILL, WHO SHOULD BE GIVEN RIGHT OF WAY?",
+          imageID: null,
+          options: {
+            a: "VEHICLES TRAVELLING DOWNHILL",
+            b: "VEHICLES TRAVELLING UPHILL",
+            c: "NO PRECEDENCE TO ANYONE",
+            d: "DEPENDS ON THE CONDITIONS OF THE ROAD",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 110,
+          question:
+            "WHAT MUST YOU DO WHEN APPROACHING AN INTERSECTION IF THE TRAFFIC LIGHTS CHANGE FROM GREEN TO AMBER?",
+          imageID: null,
+          options: {
+            a: "SPEED UP TO REACH THE INTERSECTION BEFORE LIGHTS CHANGES TO RED.",
+            b: "STOP IF YOU CAN DO SAFELY BEFORE THE INTERSECTION.",
+            c: "STOP IMMEDIATELY.",
+            d: "SWING HARD AND STOP IMMEDIATELY AROUND THE CORNER.",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 111,
+          question:
+            "WHAT MUST YOU DO WHEN YOU INTEND TO TURN RIGHT FROM A ROAD INTO A DRIVEWAY OR INTERSECTION?",
+          imageID: null,
+          options: {
+            a: "SIGNAL IMMEDIATELY BEFORE YOU TURN",
+            b: "DO NOT SIGNAL UNLESS TRAFFIC IS APPROACHING YOU",
+            c: "NO SIGNAL IS NECESSARY",
+            d: "GIVE A RIGHT TURN SIGNAL AT LEAST THREE SECONDS BEFORE YOU INTEND TO TURN",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 112,
+          question:
+            "WHILE DRIVING A VEHICLE, IF YOU FIND AN ANIMAL RUNNING ACROSS THE ROAD SUDDENLY IN FRONT OF YOU,",
+          imageID: null,
+          options: {
+            a: "YOU SHOULD APPLY BRAKES IMMEDIATELY",
+            b: "YOU SHOULD BLOW THE HORN AND OVERTAKE THE ANIMAL FROM ANY SIDE YOU FIND CONVENIENT",
+            c: "YOU SHOULD SPEED UP AND MOVE IN FRONT OF THE ANIMAL",
+            d: "YOU SHOULD CHECK TRAFFIC FROM BEHIND, SLOW DOWN OR STOP TO ENABLE THE ANIMAL TO CROSS",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 113,
+          question: "WHILE BRAKING IN RAINY AND WET CONDITIONS, YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "APPLY FULL FORCE",
+            b: "APPLY BRAKES FREQUENTLY",
+            c: "TRY TO LOCK THE WHEELS",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 114,
+          question:
+            "YOU ARE DRIVING DOWN A STEEP HILL. TO CONTROL THE SPEED OF YOUR VEHICLE YOU MUST",
+          imageID: null,
+          options: {
+            a: "SELECT LOW GEAR AND USE THE BRAKES CAREFULLY",
+            b: "SELECT A HIGH GEAR AND USE THE BRAKES CAREFULLY",
+            c: "SELECT A HIGH GEAR AND AVOID USING THE BRAKES",
+            d: "KEEP THE GEAR IN NEUTRAL AND USE BRAKES FIRMLY",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 115,
+          question: "WHILE DRIVING DOWNHILL....",
+          imageID: null,
+          options: {
+            a: "USE TOP GEAR FOR OPTIMUM PERFORMANCE",
+            b: "USE NEUTRAL GEAR TO REDUCE ENGINE NOISE",
+            c: "DRIVE WITH IGNITION OFF AND NEUTRAL GEAR TO SAVE FUEL",
+            d: "USE SAME GEAR SELECTION AS DRIVING UPHILL",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 116,
+          question:
+            "YOU STOP FOR PEDESTRIANS WAITING TO CROSS AT A ZEBRA CROSSING. THEY DO NOT START TO CROSS, WHAT SHOULD YOU DO?",
+          imageID: "img116.png",
+          options: {
+            a: "BE PATIENT AND WAIT.",
+            b: "SOUND YOUR HORN.",
+            c: "DRIVE ON.",
+            d: "WAVE THEM TO CROSS.",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 117,
+          question: "YOU SHOULD NEVER ATTEMPT TO OVERTAKE A CYCLIST",
+          imageID: "img117.png",
+          options: {
+            a: "JUST BEFORE YOU TURN LEFT",
+            b: "JUST BEFORE YOU TURN RIGHT",
+            c: "ON A ONE-WAY STREET",
+            d: "ON A DUAL CARRIAGEWAY.",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 118,
+          question:
+            "IT IS VERY WINDY. YOU ARE BEHIND A MOTORCYCLIST WHO IS OVERTAKING A HIGH-SIDED VEHICLE WHAT SHOULD YOU DO?",
+          imageID: "img118.png",
+          options: {
+            a: "OVERTAKE THE MOTORCYCLIST IMMEDIATELY.",
+            b: "KEEP WELL BACK.",
+            c: "STAY LEVEL WITH THE MOTORCYCLIST.",
+            d: "KEEP CLOSE TO THE MOTORCYCLIST.",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 119,
+          question:
+            "YOU INTEND TO TURN RIGHT INTO A SIDE ROAD, JUST BEFORE TURNING YOU SHOULD CHECK FOR MOTORCYCLISTS WHO MIGHT BE",
+          imageID: null,
+          options: {
+            a: "OVERTAKING ON YOUR LEFT",
+            b: "FOLLOWING YOU CLOSELY",
+            c: "EMERGING FROM THE SIDE ROAD",
+            d: "OVERTAKING ON YOUR RIGHT.",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 120,
+          question:
+            "YOU KEEP WELL BACK WHILE WAITING TO OVERTAKE A LARGE VEHICLE. ANOTHER CAR FILLS THE GAP. YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "SOUND YOUR HORN",
+            b: "DROP BACK FURTHER",
+            c: "FLASH YOUR HEADLIGHTS",
+            d: "START TO OVERTAKE.",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 121,
+          question: "WHEN SHOULD YOU DIRECT PEDESTRIANS TO CROSS THE ROAD?",
+          imageID: null,
+          options: {
+            a: "AT PEDESTRIAN CROSSINGS.",
+            b: "AT NO TIME.",
+            c: "AT JUNCTIONS.",
+            d: "AT SCHOOL CROSSINGS.",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 122,
+          question:
+            "THERE IS A SLOW-MOVING MOTORCYCLIST AHEAD OF YOU. YOU ARE UNSURE WHAT THE RIDER IS GOING TO DO. YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "PASS ON THE LEFT",
+            b: "PASS ON THE RIGHT",
+            c: "STAY BEHIND",
+            d: "MOVE CLOSER",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 123,
+          question:
+            "BRAKING HARD AT SPEED ON A SHARP BEND CAN MAKE YOUR VEHICLE",
+          imageID: "img123.png",
+          options: {
+            a: "MORE STABLE",
+            b: "UNSTABLE",
+            c: "STALL",
+            d: "CORNER SAFELY",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 124,
+          question:
+            "A LONG, HEAVILY LOADED LORRY IS TAKING A LONG TIME TO OVERTAKE YOU. WHAT SHOULD YOU DO?",
+          imageID: null,
+          options: {
+            a: "SPEED UP.",
+            b: "SLOW DOWN.",
+            c: "HOLD YOUR SPEED.",
+            d: "CHANGE DIRECTION.",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 125,
+          question:
+            "WHAT IS THE MAIN HAZARD A DRIVER SHOULD BE AWARE OF WHEN FOLLOWING A CYCLIST?",
+          imageID: null,
+          options: {
+            a: "THE CYCLIST MAY MOVE INTO THE LEFT AND DISMOUNT",
+            b: "THE CYCLIST MAY SWERVE OUT INTO THE ROAD.",
+            c: "THE CONTENTS OF THE CYCLIST'S CARRIER MAY FALL ONTO THE ROAD.",
+            d: "THE CYCLIST MAY WISH TO TURN RIGHT AT THE END OF THE ROAD.",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 126,
+          question: "YOU ARE DRIVING ON A WELL-LIT MOTORWAY AT NIGHT. YOU MUST",
+          imageID: null,
+          options: {
+            a: "USE ONLY YOUR SIDELIGHTS",
+            b: "ALWAYS USE YOUR HEADLIGHTS",
+            c: "ALWAYS USE REAR FOG LIGHTS",
+            d: "USE HEADLIGHTS ONLY IN BAD WEATHER",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 127,
+          question:
+            "YOU ARE DRIVING BEHIND A CYCLIST. YOU WISH TO TURN LEFT JUST AHEAD. YOU SHOULD",
+          imageID: "img127.png",
+          options: {
+            a: "OVERTAKE THE CYCLIST BEFORE THE JUNCTION",
+            b: "PULL ALONGSIDE THE CYCLIST AND STAY LEVEL UNTIL AFTER THE JUNCTION",
+            c: "HOLD BACK UNTIL THE CYCLIST HAS PASSED THE JUNCTION",
+            d: "GO AROUND THE CYCLIST ON THE JUNCTION.",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 128,
+          question:
+            "THE FIRST THING YOU SHOULD DO WHEN YOU WANT TO OVERTAKE A LARGE LORRY IS",
+          imageID: null,
+          options: {
+            a: "MOVE CLOSE BEHIND SO THAT YOU CAN PASS QUICKLY",
+            b: "KEEP IN CLOSE TO THE LEFT-HAND SIDE OF YOUR VEHICLE",
+            c: "FLASH YOUR HEADLIGHTS AND WAIT FOR THE DRIVER TO WAVE YOU ON",
+            d: "STAY WELL BACK TO GET A BETTER VIEW.",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 129,
+          question:
+            "YOU HAVE STOPPED AT A PEDESTRIAN CROSSING. TO ALLOW PEDESTRIANS TO CROSS, YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "WAIT UNTIL THEY HAVE CROSSED",
+            b: "EDGE FORWARD SLOWLY",
+            c: "WAIT, STOP YOUR ENGINE",
+            d: "SIGNAL PEDESTRIANS TO CROSS.",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 130,
+          question:
+            "YOU ARE TURNING LEFT AT A JUNCTION. PEDESTRIANS HAVE STARTED TO CROSS THE ROAD. YOU SHOULD",
+          imageID: "img130.png",
+          options: {
+            a: "GO ON, GIVING THEM PLENTY OF ROOM",
+            b: "STOP AND WAVE AT THEM TO CROSS",
+            c: "BLOW YOUR HORN AND PROCEED",
+            d: "GIVE WAY TO THEM",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 131,
+          question:
+            "A PEDESTRIAN STEPS OUT INTO THE ROAD JUST AHEAD OF YOU. WHAT SHOULD YOU DO FIRST?",
+          imageID: null,
+          options: {
+            a: "SOUND YOUR HORN.",
+            b: "CHECK YOUR MIRROR",
+            c: "FLASH YOUR HEADLIGHTS",
+            d: "PRESS THE BRAKE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 132,
+          question:
+            "YOU ARE COMING UP TO A ROUNDABOUT. A CYCLIST IS SIGNALLING TO TURN RIGHT. WHAT SHOULD YOU DO?",
+          imageID: null,
+          options: {
+            a: "OVERTAKE ON THE RIGHT.",
+            b: "GIVE A HORN WARNING",
+            c: "SIGNAL THE CYCLIST TO MOVE ACROSS",
+            d: "GIVE THE CYCLIST PLENTY OF ROOM",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 133,
+          question:
+            "EVEN IF YOUR TRAFFIC SIGNAL GIVES YOU A CLEARWAY, YOU SHOULD-",
+          imageID: null,
+          options: {
+            a: "BE READY TO STOP.",
+            b: "DONT OBEY THEM IN EMERGENCY.",
+            c: "BE OBSERVANT FOR DRIVERS WHO DO NOT RESPECT TRAFFIC SIGNALS.",
+            d: "DONT GO IN FOGGY CONDITIONS.",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 134,
+          question:
+            "YOU MEET AN OBSTRUCTION ON YOUR SIDE OF THE ROAD YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "CARRY ON, YOU HAVE PRIORITY.",
+            b: "YOU SHOULD WAVE ONCOMING VEHICLES THROUGH.",
+            c: "GIVE WAY TO ONCOMING TRAFFIC.",
+            d: "ACCELERATE TO GET PAST FIRST.",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 135,
+          question: "WHEN MAKING A SHORT STOP, FACING UPHILL, YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "HOLD THE VEHICLE ON THE CLUTCH",
+            b: "HOLD THE VEHICLE ON THE FOOTBRAKE",
+            c: "SELECT NEUTRAL AND APPLY THE PARKING BRAKE",
+            d: "APPLY THE PARKING BRAKE AFTER STOPPING",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 136,
+          question:
+            "IF A PERSON CARRYING A WHITE STICK WITH RED RING IS CROSSING THE ROAD, WHAT SHOULD YOU DO?",
+          imageID: null,
+          options: {
+            a: "WAIT UNTIL HE CROSS THE ROAD",
+            b: "MAN HANDLE HIM",
+            c: "GIVE HIM LIFT",
+            d: "LET HIM GO UNNOTICED",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 137,
+          question:
+            "YOU ARE WAITING AT A T-JUNCTION.. A VEHICLE IS COMING FROM THE RIGHT WITH THE LEFT SIGNAL FLASHING. WHAT SHOULD YOU DO?",
+          imageID: null,
+          options: {
+            a: "MOVE OUT AND ACCELERATE HARD",
+            b: "WAIT UNTIL THE VEHICLE STARTS TO TURN IN",
+            c: "PULL OUT BEFORE THE VEHICLE REACHES THE JUNCTION",
+            d: "MOVE OUT SLOWLY",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 138,
+          question:
+            "YOU ENTER A ROAD WHERE THERE ARE ROAD HUMPS. WHAT SHOULD YOU DO?",
+          imageID: null,
+          options: {
+            a: "MAINTAIN A REDUCED SPEED THROUGHOUT",
+            b: "ACCELERATE QUICKLY BETWEEN EACH ONE",
+            c: "ALWAYS KEEP TO THE MAXIMUM LEGAL SPEED",
+            d: "DRIVE SLOWLY AT SCHOOL TIMINGS ONLY",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 139,
+          question:
+            "WHEN APPROACHING A RIGHT-HAND CURVE YOU SHOULD KEEP WELL TO THE LEFT. WHY IS THIS?",
+          imageID: null,
+          options: {
+            a: "TO IMPROVE YOUR VIEW OF THE ROAD",
+            b: "TO OVERCOME THE EFFECT OF THE ROAD'S SLOPE",
+            c: "TO LET FASTER TRAFFIC FROM BEHIND OVERTAKE",
+            d: "TO BE POSITIONED SAFELY IF YOU SKID",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 140,
+          question:
+            "YOU ARE ON A LONG, DOWNHILL SLOPE. WHAT SHOULD YOU DO TO HELP CONTROL THE SPEED OF YOUR VEHICLE?",
+          imageID: null,
+          options: {
+            a: "SELECT NEUTRAL",
+            b: "SELECT A LOWER GEAR",
+            c: "GRIP THE HANDBRAKE FIRMLY",
+            d: "APPLY THE PARKING BRAKE GENTLY",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 141,
+          question:
+            "WHAT SHOULD THE DRIVER OF THE CAR APPROACHING THE CROSSING DO?",
+          imageID: null,
+          options: {
+            a: "CONTINUE AT THE SAME SPEED",
+            b: "SOUND THE HORN",
+            c: "DRIVE THROUGH QUICKLY",
+            d: "SLOW DOWN AND GET READY TO STOP",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 142,
+          question:
+            "YOU ARE BEHIND THE CYCLIST. WHEN THE TRAFFIC LIGHTS CHANGE, WHAT SHOULD YOU DO?",
+          imageID: null,
+          options: {
+            a: "TRY TO MOVE OFF BEFORE THE CYCLIST",
+            b: "ALLOW THE CYCLIST TIME AND ROOM",
+            c: "TURN RIGHT BUT GIVE THE CYCLIST ROOM",
+            d: "TAP YOUR HORN AND DRIVE THROUGH FIRST",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 143,
+          question:
+            "YOU INTEND TO TURN LEFT AT THE TRAFFIC LIGHTS. JUST BEFORE TURNING YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "CHECK YOUR RIGHT MIRROR",
+            b: "MOVE CLOSE UP TO THE WHITE CAR",
+            c: "STRADDLE THE LANES",
+            d: "CHECK FOR BICYCLES ON YOUR LEFT",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 144,
+          question:
+            "YOU ARE FOLLOWING A CYCLIST. YOU WISH TO TURN LEFT JUST AHEAD, YOU SHOULD-",
+          imageID: null,
+          options: {
+            a: "OVERTAKE THE CYCLIST BEFORE THE JUNCTION",
+            b: "PULL ALONGSIDE THE CYCLIST AND STAY LEVEL UNTIL AFTER THE JUNCTION",
+            c: "HOLD BACK UNTIL THE CYCLIST HAS PASSED THE JUNCTION",
+            d: "GO AROUND THE CYCLIST ON THE JUNCTION",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 145,
+          question:
+            "YOU ARE DRIVING IN TOWN. THERE IS A BUS AT THE BUS STOP ON THE OTHER SIDE OF THE ROAD. WHY SHOULD YOU BE CAREFUL?",
+          imageID: null,
+          options: {
+            a: "THE BUS MAY HAVE BROKEN DOWN",
+            b: "PEDESTRIANS MAY COME FROM BEHIND THE BUS",
+            c: "THE BUS MAY MOVE OFF SUDDENLY",
+            d: "THE BUS MAY REMAIN STATIONARY",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 146,
+          question:
+            "YOU ARE APPROACHING A MINI-ROUNDABOUT. THE LONG VEHICLE IN FRONT IS SIGNALLING LEFT BUT POSITIONED OVER TO THE RIGHT. YOU SHOULD-",
+          imageID: null,
+          options: {
+            a: "SOUND YOUR HORN",
+            b: "OVERTAKE ON THE LEFT",
+            c: "FOLLOW THE SAME COURSE AS THE LORRY",
+            d: "KEEP WELL BACK",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 147,
+          question:
+            "YOU MEET AN OBSTRUCTION ON YOUR SIDE OF THE ROAD. YOU SHOULD-",
+          imageID: "img147.png",
+          options: {
+            a: "CARRY ON YOU HAVE PRIORITY",
+            b: "GIVE WAY TO ONCOMING TRAFFIC",
+            c: "WAVE ONCOMING VEHICLES THROUGH",
+            d: "ACCELERATE TO GET PAST FIRST",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 148,
+          question: "THE WHITE LINE ALONG THE SIDE OF THE ROAD",
+          imageID: "img148.png",
+          options: {
+            a: "SHOWS THE EDGE OF THE CARRIAGEWAY",
+            b: "SHOWS THE APPROACH TO A HAZARD",
+            c: "MEANS NO PARKING",
+            d: "MEANS NO OVERTAKING",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 149,
+          question:
+            "YOU ARE WAITING AT AT-JUNCTION. A VEHICLE IS COMING FROM THE RIGHT WITH THE LEFT SIGNAL FLASHING. WHAT SHOULD YOU DO?",
+          imageID: "img149.png",
+          options: {
+            a: "MOVE OUT AND ACCELERATE HARD",
+            b: "WAIT UNTIL THE VEHICLE STARTS TO TURN IN",
+            c: "PULL OUT BEFORE THE VEHICLE REACHES THE JUNCTION",
+            d: "MOVE OUT SLOWLY",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 150,
+          question: "HOW SHOULD YOU STOP WHEN GOING UP THE GRADIENT?",
+          imageID: null,
+          options: {
+            a: "USING CLUTCH & FOOTBRAKE",
+            b: "USING ONLY GEARS",
+            c: "SWITCHING OFF THE ENGINE",
+            d: "USING THE HAND BRAKE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 151,
+          question:
+            "WHICH OF THESE SHOULD YOU DO WHEN PASSING SHEEP ON A ROAD?",
+          imageID: null,
+          options: {
+            a: "DRIVE VERY SLOWLY.",
+            b: "ALLOW PLENTY OF ROOM.",
+            c: "BE READY TO STOP.",
+            d: "ALL OF THE ABOVE.",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 152,
+          question: "WHICH HAND SIGNAL IS USED FOR 'U' TURN",
+          imageID: null,
+          options: {
+            a: "LEFT TURN SIGNAL",
+            b: "SLOW DOWN SIGNAL",
+            c: "RIGHT TURN SIGNAL",
+            d: "SPECIAL 'U' TURN SIGNAL",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 153,
+          question: "WHEN YOUR VEHICLE IS BEING OVERTAKEN",
+          imageID: null,
+          options: {
+            a: "YOU CAN INCREASE SPEED WITH CARE",
+            b: "YOU CAN CHANGE LANES",
+            c: "YOU SHOULD MOVE TO OVERTAKING LANE",
+            d: "DO NOT INCREASE SPEED",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 154,
+          question:
+            "YOU ARE APPROACHING A NARROW BRIDGE. ANOTHER VEHICLE FROM THE OPPOSITE DIRECTION IS ALREADY ON THE BRIDGE. YOU SHOULD",
+          imageID: null,
+          options: {
+            a: "INCREASE OUR SPEED AND TRY TO CROSS THE BRIDGE QUICKLY",
+            b: "SWITCH ON YOUR HEADLIGHTS",
+            c: "WAIT TILL THE OTHER VEHICLE HAS CROSSED THE BRIDGE AND THEN PROCEED",
+            d: "SOUND HORN AND DRIVE THROUGH",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 155,
+          question: "WHEN A VEHICLE ARRIVES AT AN UNGUARDED RAILWAY CROSSING",
+          imageID: null,
+          options: {
+            a: "THE DRIVER MUST SOUND HORN AND DRIVE THROUGH",
+            b: "THE DRIVER MUST SWITCH ON THE HEADLIGHTS AND DRIVE",
+            c: "THE DRIVER MUST GET OUT OF THE VEHICLE AND CHECK FOR ANY APPROACHING TRAIN AND THEN PASS.",
+            d: "THE DRIVER MUST CHECK WITH THE RAILWAY AUTHORITIES ABOUT TRAIN TIMINGS",
+          },
+          answerOption: "c",
+        },
+        {
+          id: 156,
+          question:
+            "YOU WISH TO PARK FACING DOWN HILL WHICH OF THE FOLLOWING SHOULD YOU DO?",
+          imageID: null,
+          options: {
+            a: "TURN THE STEERING WHEEL TOWARDS THE KERB AND PUT THE HAND BRAKE FIRMLY",
+            b: "PARK CLOSE TO THE BUMPER OF THE ANOTHER CAR",
+            c: "PARK WITH TWO WHEELS ON THE KERB",
+            d: "TURN THE STEERING WHEEL AWAY FROM THE KERB",
+          },
+          answerOption: "a",
+        },
+        {
+          id: 157,
+          question:
+            "LENDING OF A MOTOR VEHICLE TO A PERSON FOR DRIVING, WHO IS NOT HOLDING A VALID LICENCE IS:-",
+          imageID: null,
+          options: {
+            a: "NOT AN OFFENCE SINCE THE BORROWER IS SOLELY RESPONSIBLE.",
+            b: "A SERIOUS OFFENCE.",
+            c: "AN OFFENCE ONLY WHEN VEHICLE IS INVOLVED IN AN ACCIDENT.",
+            d: "NONE OF THE ABOVE",
+          },
+          answerOption: "b",
+        },
+        {
+          id: 158,
+          question: "U TURN IS PROHIBITED ON",
+          imageID: null,
+          options: {
+            a: 'A ROAD WITH A "NO U TURN" SIGN',
+            b: "A BUSY ROAD",
+            c: "A ROAD WHERE SAFETY MAY BE COMPROMISED",
+            d: "ALL OF THE ABOVE",
+          },
+          answerOption: "d",
+        },
+        {
+          id: 159,
+          question:
+            "PEDESTRIANS MUST NOT CROSS THE ROAD, FROM BEHIND A VEHICLE OR NEAR TO A BEND, BECAUSE",
+          imageID: "img159.png",
+          options: {
+            a: "THEY MAY NOT BE ABLE TO RUN ACROSS THE ROAD",
+            b: "THEY MAY CAUSE INCONVENIENCE TO THE PEDESTRIANS",
+            c: "CHILDREN MAY FEEL SCARED",
+            d: "DRIVERS OF THE OTHER VEHICLES MAY NOT BE ABLE TO SEE THE PERSON CROSSING THE ROAD",
+          },
+          answerOption: "d",
+        },
+      ];
+      const mainContainer = document.querySelector(".main-container");
+      const totalAttemptedEle = document.querySelector(".total");
+      const scoreEle = document.querySelector(".scored");
+
+      let attempted = 0;
+      let scored = 0;
+
+      // 1. Generate the HTML for the questions
+      questionData.forEach((item) => {
+        const { id, question, imageID, options, answerOption } = item;
+
+        const html = `
+        <div class="question-tab">
+          <div class="q-options">
+            <h1><span>${id}. </span>${question}</h1>
+            <p style="margin-bottom: 15px; color: #aaa;">Select an option below:</p>
+            <ul class="options" data-question-id="${id}">
+              <li class="option-item" data-choice="a"><b>a.</b> ${options.a}</li>
+              <li class="option-item" data-choice="b"><b>b.</b> ${options.b}</li>
+              <li class="option-item" data-choice="c"><b>c.</b> ${options.c}</li>
+              <li class="option-item" data-choice="d"><b>d.</b> ${options.d}</li>
+            </ul>
+          </div>
+          <div class="img-container">
+            <img src="data/img/${!imageID ? "no-image" : imageID}.png" alt="Question Image" onerror="this.style.display='none'" />
+          </div>
+        </div>`;
+
+        mainContainer.insertAdjacentHTML("beforeend", html);
+      });
+
+      // 2. Add Event Listener to handle the clicks
+      mainContainer.addEventListener("click", function (event) {
+        const clickedOption = event.target.closest(".option-item");
+
+        if (!clickedOption) return;
+
+        const optionsList = clickedOption.closest(".options");
+
+        if (optionsList.classList.contains("answered")) return;
+
+        const questionId = parseInt(
+          optionsList.getAttribute("data-question-id"),
+        );
+        const userChoice = clickedOption.getAttribute("data-choice");
+
+        const question = questionData.find((q) => q.id === questionId);
+        const correctAnswer = question.answerOption;
+
+        // Lock the question
+        optionsList.classList.add("answered");
+
+        // --- NEW LOGIC: Update scores ---
+        attempted++; // Always increment attempted count
+
+        if (userChoice === correctAnswer) {
+          clickedOption.classList.add("correct");
+          scored++; // Increment score if correct
+        } else {
+          clickedOption.classList.add("wrong");
+
+          const correctOptionElement = optionsList.querySelector(
+            `[data-choice="${correctAnswer}"]`,
+          );
+          if (correctOptionElement) {
+            correctOptionElement.classList.add("correct");
+          }
+        }
+
+        // --- NEW LOGIC: Render new scores to DOM ---
+        scoreEle.textContent = scored;
+        totalAttemptedEle.textContent = attempted;
+      });
+    </script>
+  </body>
+</html>
