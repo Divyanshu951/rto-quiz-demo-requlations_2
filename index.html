@@ -27,9 +27,91 @@
         padding: 20px;
         background-color: rgba(0, 0, 0, 0.8);
         color: #fff;
-        padding-top: 100px; /* Increased to fit the larger score container */
+        padding-top: 100px;
       }
 
+      /* --- MODE SELECTION OVERLAY --- */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+      }
+
+      .modal {
+        background: #1a1a1a;
+        padding: 40px;
+        border-radius: 12px;
+        text-align: center;
+        border: 2px solid gray;
+        max-width: 400px;
+        width: 90%;
+      }
+
+      .modal h2 {
+        font-family: "Manrope", sans-serif;
+        margin-bottom: 15px;
+        font-size: 1.8rem;
+      }
+
+      .modal p {
+        margin-bottom: 30px;
+        color: #aaa;
+      }
+
+      .mode-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .mode-btn {
+        padding: 15px;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition:
+          transform 0.2s,
+          background-color 0.2s;
+        font-family: "Inter", sans-serif;
+      }
+
+      .mode-btn:active {
+        transform: scale(0.98);
+      }
+
+      #btn-quiz-mode {
+        background: #00bfff;
+        color: #000;
+      }
+
+      #btn-quiz-mode:hover {
+        background: #008cbf;
+      }
+
+      #btn-study-mode {
+        background: #2e7d32;
+        color: #fff;
+      }
+
+      #btn-study-mode:hover {
+        background: #1b5e20;
+      }
+
+      /* Utility class to hide elements */
+      .hidden {
+        display: none !important;
+      }
+
+      /* --- EXISTING STYLES --- */
       .main-container {
         width: 100%;
       }
@@ -114,7 +196,7 @@
         top: 20px;
         right: 20px;
         display: flex;
-        flex-direction: column; /* Stack High Score and Current Score */
+        flex-direction: column;
         align-items: flex-end;
         gap: 8px;
         z-index: 1000;
@@ -122,7 +204,7 @@
       }
 
       .high-score-badge {
-        background: rgba(255, 215, 0, 0.2); /* Subtle Gold */
+        background: rgba(255, 215, 0, 0.2);
         color: #ffd700;
         padding: 6px 16px;
         border-radius: 20px;
@@ -165,10 +247,6 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
-
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
         background: rgb(0 68 255 / 20%);
         padding: 6px 16px;
         border-radius: 20px;
@@ -205,17 +283,14 @@
         body {
           padding-top: 110px;
         }
-
         .current-score-badge {
           display: flex;
           flex-direction: column;
           max-width: 100px;
         }
-
         .current-score-badge::before {
           content: "Score";
         }
-
         .link::before {
           content: "DOC";
         }
@@ -223,7 +298,22 @@
     </style>
   </head>
   <body>
-    <div class="score-container">
+    <div id="mode-selection-overlay" class="overlay">
+      <div class="modal">
+        <h2>RTO Regulations</h2>
+        <p>Choose how you want to proceed:</p>
+        <div class="mode-buttons">
+          <button id="btn-quiz-mode" class="mode-btn">
+            Quiz Mode (Test Yourself)
+          </button>
+          <button id="btn-study-mode" class="mode-btn">
+            Study Mode (View Answers)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-container hidden">
       <div class="high-score-badge">
         Highest: <span class="high-score">0/0</span>
       </div>
@@ -240,7 +330,7 @@
       target="_blank"
     ></a>
 
-    <div class="main-container"></div>
+    <div class="main-container hidden"></div>
 
     <script>
       const questionData = [
@@ -2277,15 +2367,26 @@
         },
       ];
       const mainContainer = document.querySelector(".main-container");
+      const scoreContainer = document.querySelector(".score-container");
+      const overlay = document.getElementById("mode-selection-overlay");
+
+      const btnQuiz = document.getElementById("btn-quiz-mode");
+      const btnStudy = document.getElementById("btn-study-mode");
+
       const totalAttemptedEle = document.querySelector(".total");
       const scoreEle = document.querySelector(".scored");
       const highScoreEle = document.querySelector(".high-score");
 
       let attempted = 0;
       let scored = 0;
+      let currentMode = "quiz"; // Will be updated on click
       const totalQuestions = questionData.length;
 
-      // --- NEW: Initialize High Score from Local Storage ---
+      // Event Listeners for Mode Selection
+      btnQuiz.addEventListener("click", () => startApp("quiz"));
+      btnStudy.addEventListener("click", () => startApp("study"));
+
+      // Initialize High Score
       function initHighScore() {
         const savedHighScore = localStorage.getItem("rtoQuizHighScore");
         if (savedHighScore !== null) {
@@ -2295,43 +2396,81 @@
         }
       }
 
-      initHighScore(); // Run on load
+      // Main function to load the UI based on mode
+      function startApp(mode) {
+        currentMode = mode;
 
-      // 1. Generate the HTML for the questions
-      questionData.forEach((item) => {
-        const { id, question, imageID, options, answerOption } = item;
+        // Hide overlay, show main container
+        overlay.classList.add("hidden");
+        mainContainer.classList.remove("hidden");
 
-        const html = `
-        <div class="question-tab">
-            <div class="q-options" style="${!imageID ? "border-right: none;" : ""}">
-              <h1><span>${id}. </span>${question}</h1>
-            <p style="margin-bottom: 15px; color: #aaa;">Select an option below:</p>
-            <ul class="options" data-question-id="${id}">
-              <li class="option-item" data-choice="a"><b>a.</b> ${options.a}</li>
-              <li class="option-item" data-choice="b"><b>b.</b> ${options.b}</li>
-              <li class="option-item" data-choice="c"><b>c.</b> ${options.c}</li>
-              <li class="option-item" data-choice="d"><b>d.</b> ${options.d}</li>
-            </ul>
-          </div>
+        // Only show score container and init scores if in Quiz Mode
+        if (mode === "quiz") {
+          scoreContainer.classList.remove("hidden");
+          initHighScore();
+        }
 
-          ${
-            !imageID
-              ? ""
-              : `
-            <div class="img-container">
-              <img src="data/img/${imageID}.png" alt="Question Image" />
+        // Generate HTML
+        questionData.forEach((item) => {
+          const { id, question, imageID, options, answerOption } = item;
+
+          const html = `
+          <div class="question-tab">
+              <div class="q-options" style="${!imageID ? "border-right: none;" : ""}">
+                <h1><span>${id}. </span>${question}</h1>
+              <p style="margin-bottom: 15px; color: #aaa;">${mode === "study" ? "Correct answer highlighted below:" : "Select an option below:"}</p>
+              <ul class="options" data-question-id="${id}">
+                <li class="option-item" data-choice="a"><b>a.</b> ${options.a}</li>
+                <li class="option-item" data-choice="b"><b>b.</b> ${options.b}</li>
+                <li class="option-item" data-choice="c"><b>c.</b> ${options.c}</li>
+                <li class="option-item" data-choice="d"><b>d.</b> ${options.d}</li>
+              </ul>
             </div>
-          `
-          }
 
-        </div>
-      `;
+            ${
+              !imageID
+                ? ""
+                : `
+              <div class="img-container">
+                <img src="data/img/${imageID}.png" alt="Question Image" />
+              </div>
+            `
+            }
+          </div>
+        `;
+          mainContainer.insertAdjacentHTML("beforeend", html);
+        });
 
-        mainContainer.insertAdjacentHTML("beforeend", html);
-      });
+        // If Study Mode, pre-fill the correct answers
+        if (mode === "study") {
+          const allOptionLists = document.querySelectorAll(".options");
 
-      // 2. Add Event Listener to handle the clicks
+          allOptionLists.forEach((optionsList) => {
+            const questionId = parseInt(
+              optionsList.getAttribute("data-question-id"),
+            );
+            const question = questionData.find((q) => q.id === questionId);
+            const correctAnswer = question.answerOption;
+
+            // Find the correct li and add 'correct' class
+            const correctOptionElement = optionsList.querySelector(
+              `[data-choice="${correctAnswer}"]`,
+            );
+            if (correctOptionElement) {
+              correctOptionElement.classList.add("correct");
+            }
+
+            // Add 'answered' class to disable hover/clicks and dim wrong answers
+            optionsList.classList.add("answered");
+          });
+        }
+      }
+
+      // Handle Clicks (Only relevant for Quiz Mode)
       mainContainer.addEventListener("click", function (event) {
+        // Prevent logic if we are in study mode
+        if (currentMode === "study") return;
+
         const clickedOption = event.target.closest(".option-item");
 
         if (!clickedOption) return;
@@ -2369,7 +2508,7 @@
         scoreEle.textContent = scored;
         totalAttemptedEle.textContent = attempted;
 
-        // --- NEW: Check and Update High Score when quiz is finished ---
+        // Check and Update High Score when quiz is finished
         if (attempted === totalQuestions) {
           const currentHighScore =
             parseInt(localStorage.getItem("rtoQuizHighScore")) || 0;
@@ -2378,7 +2517,6 @@
             localStorage.setItem("rtoQuizHighScore", scored);
             highScoreEle.textContent = `${scored}/${totalQuestions}`;
 
-            // Optional: Give it a little flash effect to show they broke the record
             highScoreEle.parentElement.style.backgroundColor =
               "rgba(46, 125, 50, 0.8)";
             highScoreEle.parentElement.style.color = "#fff";
