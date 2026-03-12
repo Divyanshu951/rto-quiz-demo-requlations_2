@@ -27,8 +27,7 @@
         padding: 20px;
         background-color: rgba(0, 0, 0, 0.8);
         color: #fff;
-        /* Added top padding so the first question isn't hidden by the floating score */
-        padding-top: 80px;
+        padding-top: 100px; /* Increased to fit the larger score container */
       }
 
       .main-container {
@@ -62,6 +61,7 @@
         max-width: 100%;
         height: auto;
         border-radius: 8px;
+        zoom: 200%;
       }
 
       h1 {
@@ -74,7 +74,6 @@
         list-style-type: none;
       }
 
-      /* Styling for the clickable options */
       .option-item {
         background-color: #333;
         padding: 12px 15px;
@@ -89,52 +88,67 @@
         background-color: #444;
       }
 
-      /* Styles applied via JavaScript when clicked */
       .option-item.correct {
-        background-color: #2e7d32; /* Green */
+        background-color: #2e7d32;
         color: white;
         border-color: #4caf50;
       }
 
       .option-item.wrong {
-        background-color: #c62828; /* Red */
+        background-color: #c62828;
         color: white;
         border-color: #ef5350;
       }
 
-      /* Disable clicking after an answer is chosen */
       .options.answered .option-item {
         pointer-events: none;
       }
 
-      /* Keep unselected options slightly faded after answering */
       .options.answered .option-item:not(.correct):not(.wrong) {
         opacity: 0.5;
       }
 
-      /* --- NEW SCORE CONTAINER DESIGN --- */
+      /* --- SCORE CONTAINER DESIGN --- */
       .score-container {
         position: fixed;
         top: 20px;
-        right: 20px; /* Moved to the right for a more standard look */
+        right: 20px;
+        display: flex;
+        flex-direction: column; /* Stack High Score and Current Score */
+        align-items: flex-end;
+        gap: 8px;
+        z-index: 1000;
+        font-family: "Manrope", sans-serif;
+      }
+
+      .high-score-badge {
+        background: rgba(255, 215, 0, 0.2); /* Subtle Gold */
+        color: #ffd700;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255, 215, 0, 0.5);
+        backdrop-filter: blur(5px);
+      }
+
+      .current-score-badge {
         padding: 12px 24px;
-        background: rgba(0, 0, 0, 0.8);
+        background: rgb(255 0 0 / 20%);
         color: #fff;
         border-radius: 30px;
-        font-family: "Manrope", sans-serif;
         font-weight: 700;
         font-size: 1.25rem;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         display: flex;
         align-items: center;
         gap: 8px;
-        z-index: 1000;
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgb(255 0 0 / 50%);
         backdrop-filter: blur(5px);
       }
 
-      .score-container::before {
-        content: "Score:";
+      .current-score-badge::before {
+        content: "Current Score:";
         font-size: 1rem;
         font-weight: 500;
         opacity: 0.8;
@@ -145,6 +159,29 @@
         background: rgba(0, 0, 0, 0.2);
         padding: 4px 12px;
         border-radius: 20px;
+      }
+
+      .link {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgb(0 68 255 / 20%);
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border: 1px solid rgb(0 140 255 / 50%);
+        backdrop-filter: blur(5px);
+        text-decoration: none;
+        color: #00bfff;
+      }
+
+      .link::before {
+        content: "Link to DOC";
       }
 
       @media (max-width: 768px) {
@@ -160,21 +197,49 @@
         .score-container {
           top: 10px;
           right: 10px;
+        }
+        .current-score-badge {
           font-size: 1rem;
           padding: 8px 16px;
         }
         body {
-          padding-top: 70px;
+          padding-top: 110px;
+        }
+
+        .current-score-badge {
+          display: flex;
+          flex-direction: column;
+          max-width: 100px;
+        }
+
+        .current-score-badge::before {
+          content: "Score";
+        }
+
+        .link::before {
+          content: "DOC";
         }
       }
     </style>
   </head>
   <body>
     <div class="score-container">
-      <div class="score-numbers">
-        <span class="scored">0</span> / <span class="total">0</span>
+      <div class="high-score-badge">
+        Highest: <span class="high-score">0/0</span>
+      </div>
+      <div class="current-score-badge">
+        <div class="score-numbers">
+          <span class="scored">0</span> / <span class="total">0</span>
+        </div>
       </div>
     </div>
+
+    <a
+      class="link"
+      href="https://www.transport.telangana.gov.in/html/pdf/rules-of-road-regulations-english.pdf"
+      target="_blank"
+    ></a>
+
     <div class="main-container"></div>
 
     <script>
@@ -2214,9 +2279,23 @@
       const mainContainer = document.querySelector(".main-container");
       const totalAttemptedEle = document.querySelector(".total");
       const scoreEle = document.querySelector(".scored");
+      const highScoreEle = document.querySelector(".high-score");
 
       let attempted = 0;
       let scored = 0;
+      const totalQuestions = questionData.length;
+
+      // --- NEW: Initialize High Score from Local Storage ---
+      function initHighScore() {
+        const savedHighScore = localStorage.getItem("rtoQuizHighScore");
+        if (savedHighScore !== null) {
+          highScoreEle.textContent = `${savedHighScore}/${totalQuestions}`;
+        } else {
+          highScoreEle.textContent = `0/${totalQuestions}`;
+        }
+      }
+
+      initHighScore(); // Run on load
 
       // 1. Generate the HTML for the questions
       questionData.forEach((item) => {
@@ -2224,8 +2303,8 @@
 
         const html = `
         <div class="question-tab">
-          <div class="q-options">
-            <h1><span>${id}. </span>${question}</h1>
+            <div class="q-options" style="${!imageID ? "border-right: none;" : ""}">
+              <h1><span>${id}. </span>${question}</h1>
             <p style="margin-bottom: 15px; color: #aaa;">Select an option below:</p>
             <ul class="options" data-question-id="${id}">
               <li class="option-item" data-choice="a"><b>a.</b> ${options.a}</li>
@@ -2234,10 +2313,19 @@
               <li class="option-item" data-choice="d"><b>d.</b> ${options.d}</li>
             </ul>
           </div>
-          <div class="img-container">
-            <img src="data/img/${!imageID ? "no-image" : imageID}.png" alt="Question Image" onerror="this.style.display='none'" />
-          </div>
-        </div>`;
+
+          ${
+            !imageID
+              ? ""
+              : `
+            <div class="img-container">
+              <img src="data/img/${imageID}.png" alt="Question Image" />
+            </div>
+          `
+          }
+
+        </div>
+      `;
 
         mainContainer.insertAdjacentHTML("beforeend", html);
       });
@@ -2260,15 +2348,13 @@
         const question = questionData.find((q) => q.id === questionId);
         const correctAnswer = question.answerOption;
 
-        // Lock the question
         optionsList.classList.add("answered");
 
-        // --- NEW LOGIC: Update scores ---
-        attempted++; // Always increment attempted count
+        attempted++;
 
         if (userChoice === correctAnswer) {
           clickedOption.classList.add("correct");
-          scored++; // Increment score if correct
+          scored++;
         } else {
           clickedOption.classList.add("wrong");
 
@@ -2280,9 +2366,26 @@
           }
         }
 
-        // --- NEW LOGIC: Render new scores to DOM ---
         scoreEle.textContent = scored;
         totalAttemptedEle.textContent = attempted;
+
+        // --- NEW: Check and Update High Score when quiz is finished ---
+        if (attempted === totalQuestions) {
+          const currentHighScore =
+            parseInt(localStorage.getItem("rtoQuizHighScore")) || 0;
+
+          if (scored > currentHighScore) {
+            localStorage.setItem("rtoQuizHighScore", scored);
+            highScoreEle.textContent = `${scored}/${totalQuestions}`;
+
+            // Optional: Give it a little flash effect to show they broke the record
+            highScoreEle.parentElement.style.backgroundColor =
+              "rgba(46, 125, 50, 0.8)";
+            highScoreEle.parentElement.style.color = "#fff";
+            highScoreEle.parentElement.style.borderColor = "#4caf50";
+            highScoreEle.parentElement.innerHTML = `🏆 New High Score: <span class="high-score">${scored}/${totalQuestions}</span>`;
+          }
+        }
       });
     </script>
   </body>
